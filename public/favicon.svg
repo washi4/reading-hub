@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Reading Hub book icon">
+  <defs>
+    <linearGradient id="bookGradient" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0b6cff" />
+      <stop offset="100%" stop-color="#58a6ff" />
+    </linearGradient>
+  </defs>
+  <rect x="6" y="8" width="52" height="48" rx="10" fill="#0f1115" />
+  <path d="M14 18c7-5 17-5 24 0v28c-7-5-17-5-24 0V18Z" fill="url(#bookGradient)" />
+  <path d="M50 18c-7-5-17-5-24 0v28c7-5 17-5 24 0V18Z" fill="#d9ebff" opacity="0.94" />
+  <path d="M32 17v30" stroke="#ffffff" stroke-opacity="0.8" stroke-width="2" />
+  <path d="M18 24h14M18 29h12M18 34h10" stroke="#dff0ff" stroke-width="1.5" stroke-linecap="round" />
+  <path d="M36 24h11M36 29h9M36 34h12" stroke="#4f6f96" stroke-width="1.5" stroke-linecap="round" />
+</svg>

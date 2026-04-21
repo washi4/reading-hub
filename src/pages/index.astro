@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const posts = await getCollection('posts');
+const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+});
+---
+
+<BaseLayout title="Reading Hub | 文章列表" description="个人阅读站：按时间倒序整理中英混合文章。">
+	<section>
+		<h1>Reading Hub</h1>
+		<p>
+			这里记录我想反复阅读的内容：文章、转录稿、实验笔记，以及中英混合的长文摘录。
+			页面保持简洁，适合安静地读完一篇。
+		</p>
+
+		<ul class="posts-list">
+			{
+				sortedPosts.map((post) => (
+					<li class="post-card">
+						<h2 class="post-card-title">
+							<a href={`/posts/${post.id}/`}>{post.data.title}</a>
+						</h2>
+						<div class="post-meta">
+							<time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+						</div>
+						<p class="post-description">{post.data.description}</p>
+						{post.data.tags.length > 0 && (
+							<div class="tags" aria-label="文章标签">
+								{post.data.tags.map((tag) => (
+									<span class="tag">#{tag}</span>
+								))}
+							</div>
+						)}
+					</li>
+				))
+			}
+		</ul>
+	</section>
+</BaseLayout>

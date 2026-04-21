@@ -1,0 +1,55 @@
+---
+import '../styles/global.css';
+import ThemeToggle from '../components/ThemeToggle.astro';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = 'Reading Hub',
+	description = 'A calm space for bilingual long-form reading.',
+} = Astro.props;
+
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content={description} />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/svg+xml" href={`${baseUrl}favicon.svg`} />
+		<title>{title}</title>
+		<script is:inline>
+			(() => {
+				const KEY = 'reading-hub-theme';
+				const saved = localStorage.getItem(KEY);
+				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				const resolved = saved === 'light' || saved === 'dark' ? saved : prefersDark ? 'dark' : 'light';
+				document.documentElement.setAttribute('data-theme', resolved);
+			})();
+		</script>
+	</head>
+	<body>
+		<div class="shell">
+			<header class="site-header">
+				<div class="site-header-inner">
+					<a class="site-title" href={baseUrl}>Reading Hub</a>
+					<ThemeToggle />
+				</div>
+			</header>
+			<main>
+				<div class="content-wrap">
+					<slot />
+				</div>
+			</main>
+			<footer class="site-footer">
+				Quiet reading for mixed Chinese &amp; English notes.
+			</footer>
+		</div>
+	</body>
+</html>

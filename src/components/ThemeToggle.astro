@@ -1,0 +1,76 @@
+<button type="button" class="theme-toggle" data-theme-toggle aria-label="切换深色模式" title="切换主题">
+	<svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+		<path
+			d="M12 4a1 1 0 0 1 1 1v1.35a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1Zm0 12.65a1 1 0 0 1 1 1V19a1 1 0 1 1-2 0v-1.35a1 1 0 0 1 1-1ZM6.34 6.34a1 1 0 0 1 1.41 0l.96.96a1 1 0 1 1-1.41 1.41l-.96-.96a1 1 0 0 1 0-1.41Zm8.99 8.99a1 1 0 0 1 1.41 0l.96.96a1 1 0 0 1-1.41 1.41l-.96-.96a1 1 0 0 1 0-1.41ZM4 12a1 1 0 0 1 1-1h1.35a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm12.65 0a1 1 0 0 1 1-1H19a1 1 0 1 1 0 2h-1.35a1 1 0 0 1-1-1ZM6.34 17.66a1 1 0 0 1 0-1.41l.96-.96a1 1 0 0 1 1.41 1.41l-.96.96a1 1 0 0 1-1.41 0Zm8.99-8.99a1 1 0 0 1 0-1.41l.96-.96a1 1 0 1 1 1.41 1.41l-.96.96a1 1 0 0 1-1.41 0ZM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"
+		/>
+	</svg>
+	<svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+		<path
+			d="M14.8 4.2a1 1 0 0 1 .85 1.55A7 7 0 1 0 18.24 16a1 1 0 0 1 1.18 1.53A9 9 0 1 1 13.3 3.24a1 1 0 0 1 1.5.96Z"
+		/>
+	</svg>
+</button>
+
+<style>
+	.theme-toggle {
+		font-family: system-ui, 'PingFang SC', sans-serif;
+		border: 1px solid var(--border);
+		background: var(--surface);
+		color: var(--text);
+		width: 2.25rem;
+		height: 2.25rem;
+		display: grid;
+		place-items: center;
+		border-radius: 50%;
+		cursor: pointer;
+		padding: 0;
+		transition: transform 180ms ease, border-color 180ms ease;
+	}
+
+	.theme-toggle:hover {
+		transform: translateY(-1px);
+		border-color: var(--accent);
+	}
+
+	.icon {
+		width: 1.15rem;
+		height: 1.15rem;
+		fill: currentColor;
+	}
+
+	html[data-theme='light'] .icon-moon {
+		display: none;
+	}
+
+	html[data-theme='dark'] .icon-sun {
+		display: none;
+	}
+</style>
+
+<script is:inline>
+	(() => {
+		const KEY = 'reading-hub-theme';
+		const button = document.querySelector('[data-theme-toggle]');
+		if (!button) return;
+
+		const resolveTheme = () => {
+			const saved = localStorage.getItem(KEY);
+			if (saved === 'light' || saved === 'dark') return saved;
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		};
+
+		const applyTheme = (theme) => {
+			document.documentElement.setAttribute('data-theme', theme);
+			button.setAttribute('aria-label', theme === 'dark' ? '切换为浅色模式' : '切换为深色模式');
+		};
+
+		applyTheme(resolveTheme());
+
+		button.addEventListener('click', () => {
+			const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+			const next = current === 'dark' ? 'light' : 'dark';
+			localStorage.setItem(KEY, next);
+			applyTheme(next);
+		});
+	})();
+</script>
