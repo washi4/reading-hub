@@ -280,13 +280,12 @@ img {
 	border-radius: 10px;
 	overflow: hidden;
 	line-height: 0;
-	background: #000;
 }
 
 .post-cover img {
 	width: 100%;
 	height: auto;
-	aspect-ratio: 16 / 9;
+	aspect-ratio: 2 / 1;
 	object-fit: cover;
 	object-position: center;
 	display: block;
