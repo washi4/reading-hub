@@ -136,8 +136,9 @@ Default working directory for downloads: `tmp/youtube-clips/<videoId>/` (create 
    Requires `bun` via `npx`. Fallback: any tool that produces clean markdown with the article body (no nav/ads).
 2. Strip site chrome: sidebars, "related posts", share buttons, cookie banners, footer links.
 3. Preserve the article's own headings (`##`, `###`), block quotes, and code blocks.
-4. Add frontmatter with `source: <original URL>`. If the page has a byline, use `speaker: <author>` (or leave it off — don't invent).
-5. If the article is long (>2000 words), keep it whole — reading-hub is for long-form. Don't summarize unless the user asks.
+4. **Preserve inline images.** If the source article has figures, diagrams, or screenshots, keep them in the post body as `![alt text](https://...)` at the same position they appear in the source. Use the original CDN URL — don't download, don't strip. Only skip purely decorative chrome (logos, share icons, "keep reading" cards). When in doubt, keep it: a figure diagram is part of the argument. Before saving, scan the raw source for `![` / `<img` / `<figure>` and verify every substantive one made it into the post.
+5. Add frontmatter with `source: <original URL>`. If the page has a byline, use `speaker: <author>` (or leave it off — don't invent).
+6. If the article is long (>2000 words), keep it whole — reading-hub is for long-form. Don't summarize unless the user asks.
 
 ### C. Raw text or existing markdown
 
@@ -197,6 +198,7 @@ Check these before saving:
 - [ ] Frontmatter parses as YAML; `title` present; `tags` is a list; dates in `YYYY-MM-DD`.
 - [ ] Slug is ASCII, lowercase, hyphen-separated.
 - [ ] No VTT timestamps, no `<c>` tags, no `&gt;` or other HTML entities leaked into the body.
+- [ ] For web-article sources: every substantive figure/diagram/screenshot from the original is present in the post body as `![alt](url)`. Decorative chrome (site logos, share buttons, "keep reading" cards) is excluded.
 - [ ] Paragraphs have blank lines between them. Section headings use `##` (not `#`; that's reserved for the document title if used at all).
 - [ ] Long talks have Q&A split out after a `---` rule.
 - [ ] No hallucinated speaker names, quotes, or sources. If the transcript didn't name someone, call them `Interviewer` or by their role.
