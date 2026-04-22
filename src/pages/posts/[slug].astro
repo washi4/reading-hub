@@ -18,6 +18,11 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
 	month: 'long',
 	day: 'numeric',
 });
+
+const source = post.data.source;
+const ytMatch = source?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/);
+const youtubeId = ytMatch?.[1];
+const cover = post.data.cover ?? (youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : undefined);
 ---
 
 <BaseLayout title={`${post.data.title} | Reading Hub`} description={post.data.description}>
@@ -35,6 +40,15 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
 						<span class="tag">#{tag}</span>
 					))}
 				</div>
+			)}
+			{cover && (
+				<a class="post-cover" href={source} target="_blank" rel="noopener noreferrer">
+					<img src={cover} alt={post.data.title} loading="lazy" />
+					{youtubeId && <span class="post-cover-badge">▶ 在 YouTube 观看原视频</span>}
+				</a>
+			)}
+			{source && !youtubeId && (
+				<p class="post-source"><a href={source} target="_blank" rel="noopener noreferrer">查看原文 →</a></p>
 			)}
 		</header>
 		<Content />

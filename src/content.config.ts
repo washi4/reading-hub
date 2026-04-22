@@ -11,6 +11,7 @@ const posts = defineCollection({
 		tags: z.array(z.string()).default([]),
 		// Allow arbitrary extra frontmatter fields
 		source: z.string().optional(),
+		cover: z.string().optional(),
 		speaker: z.string().optional(),
 		format: z.string().optional(),
 		language: z.string().optional(),

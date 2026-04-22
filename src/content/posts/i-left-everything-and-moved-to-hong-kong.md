@@ -1,8 +1,9 @@
 ---
 title: "I Left Everything and Moved to Hong Kong"
-date: 2026-04-18
+date: 2026-04-22
 description: "Gina Lai 讲述她如何离开多伦多、在香港重新建立生活与事业，以及海外生活中那些没人会告诉你的真实感受。"
 source: https://www.youtube.com/watch?v=QF3gZkQBfcE
+cover: https://img.youtube.com/vi/QF3gZkQBfcE/maxresdefault.jpg
 speaker: Gina Lai
 format: Personal YouTube vlog
 language: English

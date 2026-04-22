@@ -46,10 +46,11 @@ The Astro content collection (`src/content.config.ts`) accepts:
 | Field | Required | Notes |
 |---|---|---|
 | `title` | yes | Human-readable title. For talks, can include a subtitle after `—`. |
-| `date` | recommended | ISO `YYYY-MM-DD`. Default to today if unknown. |
+| `date` | recommended | **The date this post was generated, NOT the source publish date.** Use today (`date +%Y-%m-%d`). The index page sorts by this field, so using the video upload date would bury freshly-added older content at the bottom of the list. |
 | `description` | recommended | One-sentence summary. Chinese or English. Used on index page. |
 | `tags` | recommended | Array of lowercase slugs, e.g. `[youtube, opensource, career]`. |
-| `source` | for external sources | Original URL. |
+| `source` | for external sources | Original URL. Rendered as a link at the top of the article (and the "watch original" button for YouTube). |
+| `cover` | for YouTube / when available | Absolute image URL. For YouTube, use `https://img.youtube.com/vi/<videoId>/maxresdefault.jpg`. Rendered as a clickable hero image that opens the source. If omitted on a YouTube post, the layout auto-derives it from `source`. |
 | `speaker` | for talks/interviews | Name + role. |
 | `format` | optional | e.g. `TED-style talk + Q&A`, `blog post`, `podcast transcript`. |
 | `language` | optional | `English`, `Chinese`, or `Bilingual`. |
@@ -60,9 +61,10 @@ Use this exact YAML block layout (tags as a list, not inline) — it matches the
 ```yaml
 ---
 title: "<title>"
-date: 2026-04-22
+date: 2026-04-22   # today, from `date +%Y-%m-%d` — NOT the source publish date
 description: "<one-sentence summary>"
 source: https://...
+cover: https://img.youtube.com/vi/<videoId>/maxresdefault.jpg   # YouTube only
 speaker: <name, role>
 format: <format>
 language: <language>
@@ -108,6 +110,11 @@ Default working directory for downloads: `tmp/youtube-clips/<videoId>/` (create 
      /tmp/<videoId>.flat.txt /tmp/<videoId>.clean.txt
    ```
    If the flattened text still has phrases like `"moved to Hong Kong. This moved to Hong Kong. This moved to Hong Kong."`, this step is mandatory. If it's already clean, the script is a no-op.
+4. **Fill frontmatter.** Required YouTube-specific fields:
+   - `date`: **today's date** (`date +%Y-%m-%d`). Do NOT use the video upload date — the index sorts by this field and backfilled old videos should still rank by when you added them.
+   - `source`: the canonical `https://www.youtube.com/watch?v=<videoId>` URL.
+   - `cover`: `https://img.youtube.com/vi/<videoId>/maxresdefault.jpg` (the layout also auto-derives this from `source` if you omit it, but setting it explicitly keeps posts self-describing).
+   - `speaker`: uploader / presenter name from the metadata fetch above.
 3. **Rewrite as an article, don't just paste the transcript.** This is the step that makes the result read-aloud friendly:
    - Fix disfluencies: `I I I` → `I`, `no reason no reason` → `no reason — no reason`
    - Merge fragments into complete sentences; add proper punctuation

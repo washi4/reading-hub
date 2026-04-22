@@ -1,8 +1,9 @@
 ---
 title: What's OpenClaw? — From Burned-Out Founder to the Lobster That Got Loose
-date: 2026-04-21
+date: 2026-04-22
 description: "Peter 讲述从职业倦怠到创建 OpenClaw 的故事——一个关于开源、自由与重新找回编程乐趣的 TED 风格演讲。"
 source: https://www.youtube.com/watch?v=7rzYDM6vMtI
+cover: https://img.youtube.com/vi/7rzYDM6vMtI/maxresdefault.jpg
 speaker: Peter (creator of OpenClaw)
 format: TED-style talk + Q&A
 language: English
