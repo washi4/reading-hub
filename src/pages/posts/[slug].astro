@@ -95,6 +95,12 @@ const typeLabels: Record<string, string> = {
 
 			const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 			const seen = new Set<string>();
+			const typeLabels: Record<string, string> = {
+				chunk: '语块',
+				collocation: '搭配',
+				formulaic: '惯用话语',
+				'sentence-frame': '句式框架',
+			};
 
 			const walk = (node: Node) => {
 				if (node.nodeType === Node.TEXT_NODE) {
@@ -111,11 +117,27 @@ const typeLabels: Record<string, string> = {
 						const mark = document.createElement('mark');
 						mark.className = 'chunk-highlight';
 						mark.textContent = hit;
-						let tooltip = chunk.meaning;
-						if (chunk.note) tooltip += ` · ${chunk.note}`;
-						mark.title = tooltip;
-						mark.dataset.meaning = chunk.meaning;
-						if (chunk.note) mark.dataset.note = chunk.note;
+
+						// Structured tooltip with meaning + type + note so mobile tap shows the same detail as desktop hover.
+						const tip = document.createElement('span');
+						tip.className = 'chunk-tooltip';
+						const meaningEl = document.createElement('span');
+						meaningEl.className = 'chunk-tooltip-meaning';
+						meaningEl.textContent = chunk.meaning;
+						tip.appendChild(meaningEl);
+						if (chunk.type && typeLabels[chunk.type]) {
+							const typeEl = document.createElement('span');
+							typeEl.className = `chunk-tooltip-type chunk-tooltip-type-${chunk.type}`;
+							typeEl.textContent = typeLabels[chunk.type];
+							tip.appendChild(typeEl);
+						}
+						if (chunk.note) {
+							const noteEl = document.createElement('span');
+							noteEl.className = 'chunk-tooltip-note';
+							noteEl.textContent = chunk.note;
+							tip.appendChild(noteEl);
+						}
+						mark.appendChild(tip);
 						// Only highlight the first occurrence to avoid noisy pages.
 						if (seen.has(chunk.text.toLowerCase())) continue;
 						seen.add(chunk.text.toLowerCase());
@@ -133,7 +155,8 @@ const typeLabels: Record<string, string> = {
 				}
 				if (
 					node.nodeType === Node.ELEMENT_NODE &&
-					!['SCRIPT', 'STYLE', 'CODE', 'PRE', 'MARK'].includes((node as Element).tagName)
+					!['SCRIPT', 'STYLE', 'CODE', 'PRE', 'MARK'].includes((node as Element).tagName) &&
+					!(node as Element).classList.contains('chunk-tooltip')
 				) {
 					Array.from(node.childNodes).forEach(walk);
 				}
@@ -141,10 +164,19 @@ const typeLabels: Record<string, string> = {
 			walk(body);
 
 			// Tap-to-toggle on mobile where :hover doesn't exist.
-			body.addEventListener('click', (e) => {
-				const t = e.target as HTMLElement;
-				if (t?.classList.contains('chunk-highlight')) {
-					t.classList.toggle('chunk-open');
+			// Clicking anywhere else (including another highlight) closes the open one.
+			document.addEventListener('click', (e) => {
+				const t = e.target as HTMLElement | null;
+				const hit = t?.closest('.chunk-highlight') as HTMLElement | null;
+				document.querySelectorAll('.chunk-highlight.chunk-open').forEach((el) => {
+					if (el !== hit) el.classList.remove('chunk-open');
+				});
+				if (hit) {
+					// Only toggle when the mark itself (or its :before-highlighted text) is tapped —
+					// taps inside the tooltip box just keep it open.
+					if (!t?.closest('.chunk-tooltip')) {
+						hit.classList.toggle('chunk-open');
+					}
 				}
 			});
 		}

@@ -322,8 +322,7 @@ img {
 	background: #fde68a;
 }
 
-.chunk-highlight::after {
-	content: attr(data-meaning);
+.chunk-tooltip {
 	position: absolute;
 	left: 50%;
 	bottom: calc(100% + 0.35rem);
@@ -331,23 +330,49 @@ img {
 	background: #1f2937;
 	color: #f9fafb;
 	font-size: 0.82rem;
-	line-height: 1.4;
-	padding: 0.4rem 0.6rem;
+	line-height: 1.45;
+	padding: 0.5rem 0.7rem;
 	border-radius: 6px;
-	white-space: nowrap;
-	max-width: 22rem;
-	white-space: normal;
 	width: max-content;
+	max-width: min(22rem, calc(100vw - 2rem));
+	white-space: normal;
+	text-align: left;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
 	opacity: 0;
 	pointer-events: none;
 	transition: opacity 0.15s ease;
 	z-index: 10;
-	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
-.chunk-highlight:hover::after,
-.chunk-highlight.chunk-open::after {
+.chunk-highlight:hover .chunk-tooltip,
+.chunk-highlight.chunk-open .chunk-tooltip {
 	opacity: 1;
+}
+
+.chunk-tooltip-meaning {
+	font-weight: 600;
+	color: #fff;
+}
+
+.chunk-tooltip-type {
+	align-self: flex-start;
+	font-size: 0.7rem;
+	padding: 0.08rem 0.45rem;
+	background: #fde68a;
+	color: #713f12;
+	border-radius: 999px;
+	line-height: 1.3;
+}
+
+.chunk-tooltip-note {
+	color: #d1d5db;
+	font-size: 0.78rem;
+	line-height: 1.5;
+	padding-top: 0.25rem;
+	border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 /* Chunks panel at bottom of article */
