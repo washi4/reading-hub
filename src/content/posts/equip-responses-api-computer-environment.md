@@ -369,7 +369,25 @@ With these primitives, a single prompt can expand into an end-to-end workflow: d
 
 The diagram below shows how this system works for creating a spreadsheet from live data.
 
-![Diagram of request lifecycle: from one prompt to durable artifacts, skill discovery](https://images.ctfassets.net/kftzwdyauwt9/2HpM23YXC1Pl0UC2j3E2ZN/18288c2295455fe4b32c26fed6f8bb15/OAI_Equip_Responses_API_with_a_computer_environment_Request_lifecycle_-_1_Skill_discovery_desktop-light__3_.svg?w=1920&q=80)
+![Request lifecycle step 1: Skill discovery](https://images.ctfassets.net/kftzwdyauwt9/2HpM23YXC1Pl0UC2j3E2ZN/18288c2295455fe4b32c26fed6f8bb15/OAI_Equip_Responses_API_with_a_computer_environment_Request_lifecycle_-_1_Skill_discovery_desktop-light__3_.svg?w=3840&q=80)
+
+*1. Skill discovery*
+
+![Request lifecycle step 2: Planning and setup](https://images.ctfassets.net/kftzwdyauwt9/2QEFaItcS9a8HtD4C626FQ/df04a7a6d62f6d99e29d3ede16aceae4/OAI_Equip_Responses_API_with_a_computer_environment_Request_lifecycle_-_2_Planning_and_setup_desktop-light__3_.svg?w=3840&q=80)
+
+*2. Planning and setup*
+
+![Request lifecycle step 3: Data acquisition](https://images.ctfassets.net/kftzwdyauwt9/3AIyRwU8y9mWzCHVd8Yh9c/40db8acd01566b89b7a115721bde23f7/OAI_Equip_Responses_API_with_a_computer_environment_Request_lifecycle_-_3_Data_acquisition_desktop-light__4_.svg?w=3840&q=80)
+
+*3. Data acquisition*
+
+![Request lifecycle step 4: Data processing](https://images.ctfassets.net/kftzwdyauwt9/L4nSrG1WRzXG2TFbIGBwp/a78f3334505eea343976f201f33c3700/OAI_Equip_Responses_API_with_a_computer_environment_Request_lifecycle_-_4_Data_processing_desktop-light__3_.svg?w=3840&q=80)
+
+*4. Data processing*
+
+![Request lifecycle step 5: Artifact generation](https://images.ctfassets.net/kftzwdyauwt9/3zJXtdRjIBt06JERKPCcv0/5e15cdbeaed540f243e938b4ec7b24a5/OAI_Equip_Responses_API_with_a_computer_environment_Request_lifecycle_-_5_Artifact_generation_desktop-light__3_.svg?w=3840&q=80)
+
+*5. Artifact generation*
 
 *The Responses API orchestrates an agentic task*
 
