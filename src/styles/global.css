@@ -312,7 +312,7 @@ img {
 /* Inline chunk highlighting */
 .chunk-highlight {
 	background: linear-gradient(180deg, transparent 55%, #fde68a 55%);
-	color: inherit;
+	color: #1f2937;
 	padding: 0 0.1em;
 	border-radius: 2px;
 	cursor: help;
@@ -323,6 +323,7 @@ img {
 .chunk-highlight:hover,
 .chunk-highlight.chunk-open {
 	background: #fde68a;
+	color: #1f2937;
 }
 
 .chunk-tooltip {
