@@ -55,6 +55,7 @@ The Astro content collection (`src/content.config.ts`) accepts:
 | `format` | optional | e.g. `TED-style talk + Q&A`, `blog post`, `podcast transcript`. |
 | `language` | optional | `English`, `Chinese`, or `Bilingual`. |
 | `purpose` | optional | e.g. `Read-aloud article`, `Study notes`. |
+| `chunks` | recommended for English/bilingual | Array of English expressions to highlight inline with Chinese meanings. See the dedicated section below. |
 
 Use this exact YAML block layout (tags as a list, not inline) — it matches the existing posts in the repo:
 
@@ -149,6 +150,45 @@ Default working directory for downloads: `tmp/youtube-clips/<videoId>/` (create 
 ### D. User's own draft (Chinese / bilingual)
 
 See `src/content/posts/hello-world.md` and `sample-transcript.md` for the in-repo style: mixed Chinese/English paragraphs are welcome, use `**bold**` for key terms, `- ` for bullets, `>` for pulled quotes. Set `language: Bilingual` when both languages appear in substantial amounts.
+
+## English chunks (learn-while-reading)
+
+This site doubles as an English-study tool. For any **English or bilingual** post, include a `chunks` array in the frontmatter. The layout will:
+
+- Auto-highlight each chunk's **first occurrence** in the article body with a yellow underline.
+- Show the Chinese meaning (and any note) on hover or tap.
+- Render a `📘 本文语块` review list at the bottom of the article.
+
+### Frontmatter format
+
+```yaml
+chunks:
+  - text: "play it safe"            # the exact English phrase to match (case-insensitive)
+    type: chunk                     # chunk | collocation | formulaic | sentence-frame
+    meaning: "稳妥行事，不冒险"       # Chinese meaning, shown in tooltip + list
+    note: "自述性格常用"              # optional extra context / usage tip
+  - text: "once-in-a-lifetime opportunity"
+    type: collocation
+    meaning: "千载难逢的机会"
+```
+
+### How to pick chunks
+
+Mine them with the bundled **`english-chunks-miner`** skill at `.github/skills/english-chunks-miner/SKILL.md` — run it right after writing the post body and it will patch the `chunks:` block into the frontmatter for you. Include every expression that's genuinely worth teaching; the layout only highlights each phrase's **first** occurrence, so a long list stays readable. Prefer:
+
+| Type | Good examples | Avoid |
+|---|---|---|
+| `chunk` | `start over`, `put on a brave face`, `bawling my eyes out` | single common words |
+| `collocation` | `drilled into me`, `itch to do something`, `make a decision` | obvious free combinations |
+| `formulaic` | `fast forward`, `long story short`, `to be fair` | |
+| `sentence-frame` | `The thing is …`, `What I mean is …` | |
+
+### Rules
+
+- `text` must appear **verbatim** somewhere in the article body (case-insensitive). If the post only has `"playing it safe"`, change `text` to `"playing it safe"` — the matcher doesn't stem.
+- The highlighter only marks the **first** occurrence to avoid visual noise; the review list still shows every entry.
+- Skip the field entirely for Chinese-only posts or when there's nothing worth teaching — an empty list is cleaner than junk.
+- For YouTube posts, pipe the deduped transcript through the `english-chunks-miner` skill, then translate / annotate the output into this YAML shape.
 
 ## Quality bar before writing the file
 

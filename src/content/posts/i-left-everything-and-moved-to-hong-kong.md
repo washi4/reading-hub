@@ -13,6 +13,191 @@ tags:
   - hongkong
   - career
   - lifestyle
+chunks:
+  - text: "start over"
+    type: chunk
+    meaning: "重新开始"
+    note: "比 start again 更有推翻重来、从零再来的意味"
+  - text: "If you've been following me for a while"
+    type: formulaic
+    meaning: "如果你关注我一段时间了"
+    note: "创作者开场自我指涉的固定句式，适合播客 / vlog / newsletter"
+  - text: "wasn't in a great place mentally"
+    type: chunk
+    meaning: "当时心理状态不太好"
+    note: "be in a good/bad place（mentally）：描述心理状态的委婉说法，比 depressed 更柔和"
+  - text: "play it safe"
+    type: chunk
+    meaning: "稳妥行事，不冒险"
+    note: "the play-it-safe type：形容保守型性格"
+  - text: "drilled into me"
+    type: collocation
+    meaning: "反复灌输让我记牢"
+    note: "drill sth. into sb.：通过重复强调把观念植入对方"
+  - text: "Fast forward"
+    type: formulaic
+    meaning: "时间快进（叙事时跳过中间细节）"
+    note: "讲故事过渡必备，等同'直接跳到后来'"
+  - text: "dabbled in"
+    type: collocation
+    meaning: "浅尝辄止地接触（某事）"
+    note: "表示尝试但不深入，不带贬义"
+  - text: "weaving it into"
+    type: collocation
+    meaning: "把它融入/编织进（别的事情里）"
+    note: "weave X into Y：把某个元素自然地织入整体"
+  - text: "itch to"
+    type: collocation
+    meaning: "按捺不住想做某事的冲动"
+    note: "itch 本义是痒，引申为强烈欲望；have an itch to do sth."
+  - text: "things got rocky"
+    type: collocation
+    meaning: "事情变得不太顺 / 关系出现波折"
+    note: "rocky 形容关系或局面颠簸、不稳定"
+  - text: "on top of that"
+    type: formulaic
+    meaning: "而且，除此之外"
+    note: "承接负面事件时的叠加词，比 also 更强调"
+  - text: "won't get into"
+    type: chunk
+    meaning: "（某事）我就不展开说了"
+    note: "I won't get into X here：礼貌地避开细节"
+  - text: "too good for him to pass up"
+    type: chunk
+    meaning: "好到他不能错过"
+    note: "be too good (for sb.) to pass up：常用于描述机会、报价"
+  - text: "putting on a brave face"
+    type: chunk
+    meaning: "强颜欢笑、故作坚强"
+    note: "put on a brave face 常用进行时态表达「装作云淡风轻」"
+  - text: "showing up in each other's lives"
+    type: collocation
+    meaning: "坚持出现在对方的生活里 / 持续投入关系"
+    note: "show up for sb.：情感语境中表示持续到场支持"
+  - text: "entertained the thought"
+    type: collocation
+    meaning: "认真考虑（某个念头）"
+    note: "entertain an idea/thought：短暂但郑重地权衡一个想法"
+  - text: "once-in-a-lifetime opportunity"
+    type: collocation
+    meaning: "千载难逢的机会"
+  - text: "holding me back"
+    type: collocation
+    meaning: "阻碍我（前进）"
+    note: "hold sb. back：常指顾虑、责任、恐惧等束缚"
+  - text: "back-and-forth"
+    type: chunk
+    meaning: "来来回回的（邮件 / 沟通）"
+    note: "做形容词或名词，形容反复往返"
+  - text: "mean the whole world to me"
+    type: formulaic
+    meaning: "对我而言就是全世界"
+    note: "升级版 mean a lot to me，情感更深"
+  - text: "bawling my eyes out"
+    type: chunk
+    meaning: "哭得稀里哗啦"
+    note: "比 cry 强烈得多，情绪失控的画面"
+  - text: "safety net"
+    type: chunk
+    meaning: "退路 / 最后的保障"
+    note: "比喻义，原指杂技演员的安全网"
+  - text: "flew by"
+    type: chunk
+    meaning: "飞快地过去了"
+    note: "time flew by：时间过得特别快"
+  - text: "hit me in the face"
+    type: collocation
+    meaning: "扑面而来（受到强烈冲击）"
+    note: "描述气温、气味、现实冲击的生动说法"
+  - text: "blew me away"
+    type: chunk
+    meaning: "让我大吃一惊 / 震撼"
+    note: "X blew me away：表达被深深打动、惊艳"
+  - text: "the wealth gap is stark"
+    type: collocation
+    meaning: "贫富差距非常悬殊"
+    note: "stark 形容对比鲜明、触目惊心"
+  - text: "blend in"
+    type: chunk
+    meaning: "融入、看起来毫不突兀"
+  - text: "open up old wounds"
+    type: collocation
+    meaning: "揭开旧伤疤（重提痛苦往事）"
+  - text: "wore off"
+    type: chunk
+    meaning: "（新鲜感/效果）逐渐消失"
+    note: "the novelty wore off：固定搭配，形容新鲜感褪去"
+  - text: "felt out of place"
+    type: collocation
+    meaning: "觉得格格不入"
+  - text: "kudos to"
+    type: formulaic
+    meaning: "向……致敬 / 表示佩服"
+    note: "kudos to sb. for doing sth.：口语中的赞许"
+  - text: "in awe of"
+    type: collocation
+    meaning: "对……心生敬畏 / 佩服得五体投地"
+  - text: "take it one step at a time"
+    type: formulaic
+    meaning: "一步一步来，别急"
+    note: "安慰/自我安慰时的经典句"
+  - text: "hardcore planner"
+    type: collocation
+    meaning: "重度计划控"
+    note: "hardcore 作形容词，强调极端 / 死忠"
+  - text: "a job lined up"
+    type: collocation
+    meaning: "已经谈好/敲定的工作"
+    note: "have sth. lined up：提前安排妥当"
+  - text: "screaming into my head"
+    type: chunk
+    meaning: "在脑子里尖叫般地冒出来"
+    note: "比喻某个念头挥之不去"
+  - text: "within walking distance"
+    type: collocation
+    meaning: "步行可达范围内"
+  - text: "go with the flow"
+    type: chunk
+    meaning: "顺势而为、随遇而安"
+  - text: "plan everything to the letter"
+    type: chunk
+    meaning: "事无巨细地一切都按计划来"
+    note: "to the letter：严格按字面 / 不差分毫"
+  - text: "align with mine"
+    type: collocation
+    meaning: "与我的（价值观/理念）契合"
+    note: "align with：价值观 / 目标对齐的标准说法"
+  - text: "settle in"
+    type: chunk
+    meaning: "安顿下来、适应新环境"
+  - text: "imposter syndrome"
+    type: chunk
+    meaning: "冒名顶替综合征（觉得自己名不副实）"
+    note: "职场、学术语境高频词"
+  - text: "juggling"
+    type: chunk
+    meaning: "同时兼顾（多件事）"
+    note: "juggling X and Y：形容手忙脚乱地平衡多项任务"
+  - text: "kept it low-key"
+    type: chunk
+    meaning: "保持低调"
+    note: "keep it low-key：不张扬、不高调处理某件事"
+  - text: "hot as balls"
+    type: chunk
+    meaning: "热得要命（粗俗口语）"
+    note: "X as balls：美式俚语强调程度，慎用于正式场合"
+  - text: "rolls their eyes"
+    type: collocation
+    meaning: "翻白眼"
+    note: "roll one's eyes：描述不耐烦或不以为然，主语可换"
+  - text: "comfort zone"
+    type: chunk
+    meaning: "舒适区"
+    note: "push oneself outside of one's comfort zone：走出舒适区"
+  - text: "stick around"
+    type: chunk
+    meaning: "留下来、继续关注"
+    note: "视频结尾常用 CTA"
 ---
 
 # I Left Everything and Moved to Hong Kong

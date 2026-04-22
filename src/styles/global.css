@@ -306,6 +306,124 @@ img {
 	font-size: 0.95rem;
 }
 
+/* Inline chunk highlighting */
+.chunk-highlight {
+	background: linear-gradient(180deg, transparent 55%, #fde68a 55%);
+	color: inherit;
+	padding: 0 0.1em;
+	border-radius: 2px;
+	cursor: help;
+	position: relative;
+	transition: background 0.15s ease;
+}
+
+.chunk-highlight:hover,
+.chunk-highlight.chunk-open {
+	background: #fde68a;
+}
+
+.chunk-highlight::after {
+	content: attr(data-meaning);
+	position: absolute;
+	left: 50%;
+	bottom: calc(100% + 0.35rem);
+	transform: translateX(-50%);
+	background: #1f2937;
+	color: #f9fafb;
+	font-size: 0.82rem;
+	line-height: 1.4;
+	padding: 0.4rem 0.6rem;
+	border-radius: 6px;
+	white-space: nowrap;
+	max-width: 22rem;
+	white-space: normal;
+	width: max-content;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s ease;
+	z-index: 10;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.chunk-highlight:hover::after,
+.chunk-highlight.chunk-open::after {
+	opacity: 1;
+}
+
+/* Chunks panel at bottom of article */
+.chunks-panel {
+	margin-top: 2.5rem;
+	padding: 1.2rem 1.3rem;
+	background: var(--accent-soft, #fef9c3);
+	border: 1px solid color-mix(in oklab, #eab308 45%, var(--border));
+	border-radius: 10px;
+}
+
+.chunks-panel h2 {
+	margin: 0 0 0.25rem;
+	font-size: 1.1rem;
+}
+
+.chunks-count {
+	display: inline-block;
+	margin-left: 0.3rem;
+	padding: 0.05rem 0.5rem;
+	background: #fef08a;
+	color: #713f12;
+	border-radius: 999px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	vertical-align: middle;
+}
+
+.chunks-hint {
+	margin: 0 0 0.9rem;
+	font-size: 0.9rem;
+	color: var(--text-muted, #6b7280);
+}
+
+.chunks-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	gap: 0.6rem;
+}
+
+.chunks-list li {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: baseline;
+	padding: 0.55rem 0.7rem;
+	background: rgba(255, 255, 255, 0.6);
+	border-radius: 6px;
+}
+
+.chunks-text {
+	font-weight: 600;
+	color: #713f12;
+}
+
+.chunks-type {
+	font-size: 0.72rem;
+	padding: 0.1rem 0.45rem;
+	background: #fde68a;
+	color: #713f12;
+	border-radius: 999px;
+	text-transform: none;
+}
+
+.chunks-meaning {
+	color: var(--text, #1f2937);
+}
+
+.chunks-note {
+	flex-basis: 100%;
+	font-size: 0.85rem;
+	color: var(--text-muted, #6b7280);
+}
+
 @media (max-width: 45rem) {
 	body {
 		font-size: 1rem;

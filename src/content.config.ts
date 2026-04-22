@@ -16,6 +16,18 @@ const posts = defineCollection({
 		format: z.string().optional(),
 		language: z.string().optional(),
 		purpose: z.string().optional(),
+		chunks: z
+			.array(
+				z.object({
+					text: z.string(),
+					type: z
+						.enum(['chunk', 'collocation', 'formulaic', 'sentence-frame'])
+						.optional(),
+					meaning: z.string(),
+					note: z.string().optional(),
+				}),
+			)
+			.optional(),
 	}),
 });
 

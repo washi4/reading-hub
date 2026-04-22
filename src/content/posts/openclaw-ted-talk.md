@@ -12,6 +12,126 @@ tags:
   - youtube
   - opensource
   - career
+chunks:
+  - text: "poured a decade of my life into it"
+    type: collocation
+    meaning: "把十年时间和精力全砸进去了"
+    note: "pour X into Y：用于形容把时间/金钱/心血投入某事，非常形象"
+  - text: "sold the dream"
+    type: chunk
+    meaning: "把（自己当初奋斗的）梦想卖掉了"
+    note: "此处一语双关：既是字面卖掉公司，也暗讽 exit 换来空虚"
+  - text: "felt absolutely nothing"
+    type: chunk
+    meaning: "什么感觉都没有（一片空白）"
+    note: "absolutely 强调彻底；形容情感真空"
+  - text: "nothing clicked"
+    type: chunk
+    meaning: "没有任何东西让我豁然开朗"
+    note: "click 这里是'对上了、通了'的感觉，常用于形容忽然想通或找到共鸣"
+  - text: "what these new AI coding agents were all about"
+    type: sentence-frame
+    meaning: "这些新 AI 编程智能体到底是怎么回事"
+    note: "what X is/was all about：用来说'X 的本质/核心'，探讨类对话常用"
+  - text: "had what I can only describe as"
+    type: sentence-frame
+    meaning: "经历了一种我只能形容为……的体验"
+    note: "典型 TED 叙事句式，为接下来抽象描述做铺垫"
+  - text: "the boring parts"
+    type: chunk
+    meaning: "那些无聊的部分"
+    note: "the boring parts that used to be X：描述某行业里麻烦却不创造价值的环节"
+  - text: "the bottleneck was no longer"
+    type: sentence-frame
+    meaning: "瓶颈不再是……"
+    note: "科技话题高频句式，后接新旧瓶颈对比"
+  - text: "I was back"
+    type: formulaic
+    meaning: "我又活过来了 / 回来了"
+    note: "情绪重燃的戏剧化短句"
+  - text: "didn't feel right"
+    type: chunk
+    meaning: "感觉不对劲"
+    note: "It didn't feel right：直觉判断的常用说法"
+  - text: "walked me through"
+    type: collocation
+    meaning: "一步步地讲解给我听"
+    note: "walk sb. through sth.：把流程或步骤完整解释一遍"
+  - text: "figured it out on its own"
+    type: chunk
+    meaning: "（它）自己琢磨出来了"
+    note: "figure out = 想通 / 弄明白；on one's own 强调独立完成"
+  - text: "I'm not kidding you"
+    type: formulaic
+    meaning: "我真不是开玩笑"
+    note: "强调真实性的口语插入语"
+  - text: "I was sold"
+    type: formulaic
+    meaning: "我被说服了 / 我信了"
+    note: "be sold on sth. 本义是被推销成功，引申为完全被打动"
+  - text: "went viral"
+    type: chunk
+    meaning: "像病毒一样迅速传播、爆火"
+  - text: "pulled the plug"
+    type: chunk
+    meaning: "紧急叫停、直接拔掉插头结束"
+    note: "pull the plug on sth.：原指拔电源，泛指终结一个项目"
+  - text: "hockey-stick growth"
+    type: collocation
+    meaning: "曲棍球棒式增长（前期平稳后突然陡升）"
+    note: "创业圈常见比喻，指图表形状像曲棍球杆"
+  - text: "blows up"
+    type: chunk
+    meaning: "（事情）一下子炸开 / 爆火"
+    note: "blow up 口语里常指事态突然失控或爆火"
+  - text: "that close"
+    type: chunk
+    meaning: "差一点就……"
+    note: "I was that close to + 动词原形：戏剧化表达'险些怎样'"
+  - text: "follows up on loose ends"
+    type: collocation
+    meaning: "追踪处理那些没收尾的事项"
+    note: "loose ends = 未处理完的零头；follow up on = 跟进"
+  - text: "figured that out"
+    type: chunk
+    meaning: "这个问题已经解决 / 搞定了"
+    note: "we figured X out：宣布某个难题已攻克"
+  - text: "spins off"
+    type: chunk
+    meaning: "衍生出一个独立的（子任务 / 子公司）"
+    note: "a sub-agent spins off：一个子智能体被拆分出去独立干活"
+  - text: "level up"
+    type: chunk
+    meaning: "升级、进入下一阶段"
+    note: "游戏用语进入日常英语，形容个人或群体能力跃升"
+  - text: "taking over various parts of the work"
+    type: collocation
+    meaning: "接管工作中的各个部分"
+    note: "take over X：接手、接管，常用于职责转移"
+  - text: "the cutting edge"
+    type: chunk
+    meaning: "最前沿、最尖端"
+    note: "at the cutting edge of X：在某领域最前端"
+  - text: "the biggest boon ever"
+    type: collocation
+    meaning: "有史以来最大的福音 / 好事"
+    note: "boon：正式一点的词，表示意外的好处"
+  - text: "get smarter on"
+    type: collocation
+    meaning: "在……上变得更明白 / 更老练"
+    note: "get smarter on X：在某议题上提升认知，软化'不够懂'的表达"
+  - text: "a huge bet on"
+    type: collocation
+    meaning: "在……上的巨大赌注"
+    note: "make a bet on / place a huge bet on：用于战略性押注"
+  - text: "give up"
+    type: chunk
+    meaning: "放弃"
+    note: "Chatbots give up. Agents improvise. — 本文金句结构"
+  - text: "With love — but truth"
+    type: formulaic
+    meaning: "带着爱，但要说真话"
+    note: "批评性发言前的缓冲套话，给受话者心理准备"
 ---
 
 # What's OpenClaw?

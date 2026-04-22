@@ -23,6 +23,14 @@ const source = post.data.source;
 const ytMatch = source?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/);
 const youtubeId = ytMatch?.[1];
 const cover = post.data.cover ?? (youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : undefined);
+
+const chunks = post.data.chunks ?? [];
+const typeLabels: Record<string, string> = {
+	chunk: '语块',
+	collocation: '搭配',
+	formulaic: '惯用话语',
+	'sentence-frame': '句式框架',
+};
 ---
 
 <BaseLayout title={`${post.data.title} | Reading Hub`} description={post.data.description}>
@@ -51,6 +59,94 @@ const cover = post.data.cover ?? (youtubeId ? `https://img.youtube.com/vi/${yout
 				<p class="post-source"><a href={source} target="_blank" rel="noopener noreferrer">查看原文 →</a></p>
 			)}
 		</header>
-		<Content />
+		<div class="article-body" data-chunks={chunks.length > 0 ? JSON.stringify(chunks) : undefined}>
+			<Content />
+		</div>
+		{chunks.length > 0 && (
+			<aside class="chunks-panel" aria-label="本文语块">
+				<h2>📘 本文语块 <span class="chunks-count">{chunks.length}</span></h2>
+				<p class="chunks-hint">正文里的黄色高亮就是下面这些表达，鼠标悬停或点击可看中文含义。</p>
+				<ul class="chunks-list">
+					{chunks.map((c) => (
+						<li>
+							<span class="chunks-text">{c.text}</span>
+							{c.type && <span class={`chunks-type chunks-type-${c.type}`}>{typeLabels[c.type] ?? c.type}</span>}
+							<span class="chunks-meaning">{c.meaning}</span>
+							{c.note && <span class="chunks-note">{c.note}</span>}
+						</li>
+					))}
+				</ul>
+			</aside>
+		)}
 	</article>
 </BaseLayout>
+
+<script>
+	// Walk text nodes inside .article-body and wrap matches for each chunk.
+	// Client-side so we don't need a remark plugin.
+	const body = document.querySelector<HTMLElement>('.article-body[data-chunks]');
+	if (body) {
+		const raw = body.getAttribute('data-chunks');
+		if (raw) {
+			type Chunk = { text: string; meaning: string; type?: string; note?: string };
+			const chunks: Chunk[] = JSON.parse(raw);
+			// Longest first so "play it safe" beats "play it".
+			chunks.sort((a, b) => b.text.length - a.text.length);
+
+			const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			const seen = new Set<string>();
+
+			const walk = (node: Node) => {
+				if (node.nodeType === Node.TEXT_NODE) {
+					const text = node.textContent ?? '';
+					for (const chunk of chunks) {
+						const re = new RegExp(escapeRe(chunk.text), 'i');
+						const match = re.exec(text);
+						if (!match) continue;
+
+						const before = text.slice(0, match.index);
+						const hit = text.slice(match.index, match.index + match[0].length);
+						const after = text.slice(match.index + match[0].length);
+
+						const mark = document.createElement('mark');
+						mark.className = 'chunk-highlight';
+						mark.textContent = hit;
+						let tooltip = chunk.meaning;
+						if (chunk.note) tooltip += ` · ${chunk.note}`;
+						mark.title = tooltip;
+						mark.dataset.meaning = chunk.meaning;
+						if (chunk.note) mark.dataset.note = chunk.note;
+						// Only highlight the first occurrence to avoid noisy pages.
+						if (seen.has(chunk.text.toLowerCase())) continue;
+						seen.add(chunk.text.toLowerCase());
+
+						const parent = node.parentNode!;
+						if (before) parent.insertBefore(document.createTextNode(before), node);
+						parent.insertBefore(mark, node);
+						const tail = document.createTextNode(after);
+						parent.insertBefore(tail, node);
+						parent.removeChild(node);
+						walk(tail);
+						return;
+					}
+					return;
+				}
+				if (
+					node.nodeType === Node.ELEMENT_NODE &&
+					!['SCRIPT', 'STYLE', 'CODE', 'PRE', 'MARK'].includes((node as Element).tagName)
+				) {
+					Array.from(node.childNodes).forEach(walk);
+				}
+			};
+			walk(body);
+
+			// Tap-to-toggle on mobile where :hover doesn't exist.
+			body.addEventListener('click', (e) => {
+				const t = e.target as HTMLElement;
+				if (t?.classList.contains('chunk-highlight')) {
+					t.classList.toggle('chunk-open');
+				}
+			});
+		}
+	}
+</script>
