@@ -1,0 +1,173 @@
+---
+name: post-creator
+description: >
+  Create a new reading post for the reading-hub Astro site from any source —
+  a YouTube video, a web article URL, a pasted text, or the user's own draft.
+  Non-markdown sources are converted to clean, read-aloud-friendly markdown
+  with proper frontmatter that satisfies the Astro content collection schema,
+  then written to `src/content/posts/<slug>.md`.
+  Make sure to use this skill whenever the user wants to add an article to
+  reading-hub, save a YouTube video as a reading-friendly article, archive a
+  web article, publish their own writing to the site, or asks to "turn this
+  into a post", even if they don't explicitly name the reading-hub project.
+  Trigger phrases include "加一篇文章", "创建一个 post", "把这个视频变成文章",
+  "发到 reading-hub", "转成朗读文章", "save this to reading-hub", "new post",
+  or whenever the user provides a YouTube URL / web URL / raw text and asks
+  to turn it into a reading post.
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - AskUserQuestion
+---
+
+# Reading Hub Post Creator
+
+This skill makes sure every post lands at `src/content/posts/<slug>.md` with the correct frontmatter, passes the content collection schema, and reads comfortably aloud.
+
+## What this skill does
+
+1. Identifies the source type: **YouTube video**, **web article URL**, **raw text / existing md**, or **user's own draft**.
+2. For non-markdown sources, converts the source into clean markdown prose (not subtitle fragments, not HTML soup).
+3. Writes a properly formatted post file to `src/content/posts/<slug>.md` with valid frontmatter that satisfies the schema in `src/content.config.ts`.
+4. Returns the file path so the user can preview it with `npm run dev`.
+
+## Output location & filename rules
+
+- Always write to `src/content/posts/<slug>.md` (relative to the reading-hub repo root).
+- `<slug>` must be: lowercase ASCII, words separated by `-`, no spaces, no punctuation except `-`. For Chinese-titled articles, use a pinyin or English slug derived from the topic, not the raw Chinese.
+- If a file with the same slug already exists, confirm with the user before overwriting. Do not silently clobber.
+
+## Required frontmatter
+
+The Astro content collection (`src/content.config.ts`) accepts:
+
+| Field | Required | Notes |
+|---|---|---|
+| `title` | yes | Human-readable title. For talks, can include a subtitle after `—`. |
+| `date` | recommended | ISO `YYYY-MM-DD`. Default to today if unknown. |
+| `description` | recommended | One-sentence summary. Chinese or English. Used on index page. |
+| `tags` | recommended | Array of lowercase slugs, e.g. `[youtube, opensource, career]`. |
+| `source` | for external sources | Original URL. |
+| `speaker` | for talks/interviews | Name + role. |
+| `format` | optional | e.g. `TED-style talk + Q&A`, `blog post`, `podcast transcript`. |
+| `language` | optional | `English`, `Chinese`, or `Bilingual`. |
+| `purpose` | optional | e.g. `Read-aloud article`, `Study notes`. |
+
+Use this exact YAML block layout (tags as a list, not inline) — it matches the existing posts in the repo:
+
+```yaml
+---
+title: "<title>"
+date: 2026-04-22
+description: "<one-sentence summary>"
+source: https://...
+speaker: <name, role>
+format: <format>
+language: <language>
+purpose: <purpose>
+tags:
+  - tag-a
+  - tag-b
+---
+```
+
+Strings with `:` or `—` should be quoted. Omit fields you don't have — don't invent speakers or sources.
+
+## Workflow by source type
+
+### A. YouTube video
+
+All required tools are bundled in this repo under `.github/skills/youtube-clipper/` — do not depend on any sibling workspace.
+
+Default working directory for downloads: `tmp/youtube-clips/<videoId>/` (create if missing, git-ignored). If the user already has a VTT file elsewhere, use theirs.
+
+1. **Download subtitles.** Prefer `yt-dlp` CLI directly — the bundled `download_video.py` has been known to fail silently on some videos. From the reading-hub repo root:
+   ```bash
+   mkdir -p tmp/youtube-clips/<videoId>
+   yt-dlp --skip-download --write-auto-subs --sub-lang en --sub-format vtt \
+     --cookies-from-browser chrome \
+     -o 'tmp/youtube-clips/%(id)s/%(id)s.%(ext)s' <url>
+   ```
+   Requires `yt-dlp` on PATH (`pip install yt-dlp`). Cookies bypass the 403 errors that hit anonymous requests. Also fetch metadata (title, uploader, upload date) to fill frontmatter:
+   ```bash
+   yt-dlp --skip-download --print "%(title)s|%(uploader)s|%(upload_date)s" \
+     --cookies-from-browser chrome <url>
+   ```
+   If you also need the video file, use `.github/skills/youtube-clipper/scripts/download_video.py <url> tmp/youtube-clips`.
+2. **Convert VTT to sentence-level SRT:**
+   ```bash
+   python3 .github/skills/youtube-clipper/scripts/vtt_to_shadow_srt.py \
+     tmp/youtube-clips/<videoId>/<videoId>.en.vtt /tmp/<videoId>.srt
+   ```
+   Then concatenate the subtitle lines (every 3rd block in each SRT entry) into continuous text and strip VTT artifacts (`<c>`, `&gt;`, position tags).
+3. **Remove rolling-caption repeats.** YouTube auto-captions often use a sliding window where each frame repeats part of the previous frame. After flattening, run the dedupe pass — it typically cuts word count by ~3× without losing content:
+   ```bash
+   python3 .github/skills/youtube-clipper/scripts/dedupe_rolling_captions.py \
+     /tmp/<videoId>.flat.txt /tmp/<videoId>.clean.txt
+   ```
+   If the flattened text still has phrases like `"moved to Hong Kong. This moved to Hong Kong. This moved to Hong Kong."`, this step is mandatory. If it's already clean, the script is a no-op.
+3. **Rewrite as an article, don't just paste the transcript.** This is the step that makes the result read-aloud friendly:
+   - Fix disfluencies: `I I I` → `I`, `no reason no reason` → `no reason — no reason`
+   - Merge fragments into complete sentences; add proper punctuation
+   - Break into logical paragraphs; add `##` section headings every 3–6 paragraphs
+   - Preserve voice, idiomatic phrases, and memorable lines verbatim (e.g. `the mad lad figured it out on its own`)
+   - Keep stage cues like `[applause]`, `[laughter]` — they help the reader pace themselves
+   - For talks with Q&A, add a `---` then a `## Q&A` section formatted as `**Interviewer:** ...` / `**Speaker:** ...`
+4. **Fill frontmatter** with `source: https://www.youtube.com/watch?v=<videoId>`, `speaker`, `format: TED-style talk + Q&A` (or similar), `language: English`, `purpose: Read-aloud article`.
+5. Reference: `src/content/posts/What's OpenClaw.md` is the canonical template for this flow.
+
+### B. Web article URL
+
+1. Fetch and convert the URL to markdown using the bundled `baoyu-url-to-markdown` skill:
+   ```bash
+   npx -y bun .github/skills/baoyu-url-to-markdown/scripts/main.ts <url> -o tmp/<slug>.raw.md
+   # For login-required pages, add --wait
+   ```
+   Requires `bun` via `npx`. Fallback: any tool that produces clean markdown with the article body (no nav/ads).
+2. Strip site chrome: sidebars, "related posts", share buttons, cookie banners, footer links.
+3. Preserve the article's own headings (`##`, `###`), block quotes, and code blocks.
+4. Add frontmatter with `source: <original URL>`. If the page has a byline, use `speaker: <author>` (or leave it off — don't invent).
+5. If the article is long (>2000 words), keep it whole — reading-hub is for long-form. Don't summarize unless the user asks.
+
+### C. Raw text or existing markdown
+
+1. If the user pastes text, ask them (briefly) for a title if one isn't obvious, then format:
+   - Add frontmatter
+   - Ensure the first heading is `# <title>` (optional; many posts skip it since the title comes from frontmatter — match the style of nearby posts)
+   - Clean up paragraph breaks and straighten quotes/dashes
+2. If they give you an existing `.md` file, read it, keep the body, and only add/fix frontmatter to match the schema.
+
+### D. User's own draft (Chinese / bilingual)
+
+See `src/content/posts/hello-world.md` and `sample-transcript.md` for the in-repo style: mixed Chinese/English paragraphs are welcome, use `**bold**` for key terms, `- ` for bullets, `>` for pulled quotes. Set `language: Bilingual` when both languages appear in substantial amounts.
+
+## Quality bar before writing the file
+
+Check these before saving:
+
+- [ ] Frontmatter parses as YAML; `title` present; `tags` is a list; dates in `YYYY-MM-DD`.
+- [ ] Slug is ASCII, lowercase, hyphen-separated.
+- [ ] No VTT timestamps, no `<c>` tags, no `&gt;` or other HTML entities leaked into the body.
+- [ ] Paragraphs have blank lines between them. Section headings use `##` (not `#`; that's reserved for the document title if used at all).
+- [ ] Long talks have Q&A split out after a `---` rule.
+- [ ] No hallucinated speaker names, quotes, or sources. If the transcript didn't name someone, call them `Interviewer` or by their role.
+
+## After writing
+
+Tell the user the final path (linked) and a one-line preview hint:
+
+```
+cd reading-hub && npm run dev
+```
+
+Then wait — don't auto-commit or push unless asked.
+
+## Anti-patterns
+
+- Pasting raw VTT subtitle blocks as the post body. The whole point of this site is that posts read aloud naturally.
+- Filling `speaker` or `source` with guesses. Leave the field out if you don't know.
+- Creating the file outside `src/content/posts/`. The Astro loader won't pick it up anywhere else.
+- Inventing Chinese translations when the source is English-only — unless the user explicitly asks for a bilingual version.
+- Auto-summarizing long articles. Reading-hub exists to host long-form; preserve it.
