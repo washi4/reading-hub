@@ -285,7 +285,10 @@ img {
 
 .post-cover img {
 	width: 100%;
-	height: auto;
+	height: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	object-position: center;
 	display: block;
 }
 
