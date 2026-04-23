@@ -40,7 +40,7 @@ body {
 }
 
 html {
-	overflow-x: clip;
+	overflow-x: hidden;
 }
 
 body {
@@ -315,6 +315,7 @@ img {
 /* Inline chunk highlighting */
 .article-body {
 	overflow-wrap: break-word;
+	overflow-x: clip; /* prevent hidden tooltips from widening the page */
 }
 
 .chunk-highlight {
