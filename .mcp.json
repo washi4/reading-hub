@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "playwright": {
+      "type": "local",
+      "command": "node",
+      "args": ["./node_modules/@playwright/test/cli.js", "run-server"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PW_CLI_TARGET_LANG": "javascript",
+        "PLAYWRIGHT_TEST_BASE_URL": "http://localhost:3000",
+        "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}/node_modules/.cache/ms-playwright"
+      }
+    }
+  }
+}
+

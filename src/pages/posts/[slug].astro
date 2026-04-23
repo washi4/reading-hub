@@ -169,13 +169,37 @@ const typeLabels: Record<string, string> = {
 				const t = e.target as HTMLElement | null;
 				const hit = t?.closest('.chunk-highlight') as HTMLElement | null;
 				document.querySelectorAll('.chunk-highlight.chunk-open').forEach((el) => {
-					if (el !== hit) el.classList.remove('chunk-open');
+					if (el !== hit) {
+						el.classList.remove('chunk-open');
+						const tip = el.querySelector('.chunk-tooltip') as HTMLElement | null;
+						if (tip) tip.style.removeProperty('transform');
+					}
 				});
 				if (hit) {
-					// Only toggle when the mark itself (or its :before-highlighted text) is tapped —
+					// Only toggle when the mark itself is tapped —
 					// taps inside the tooltip box just keep it open.
 					if (!t?.closest('.chunk-tooltip')) {
+						const isOpening = !hit.classList.contains('chunk-open');
 						hit.classList.toggle('chunk-open');
+
+						if (isOpening) {
+							// After the browser has laid out the newly-visible tooltip,
+							// nudge its transform so it stays fully inside the viewport.
+							requestAnimationFrame(() => {
+								const tip = hit.querySelector('.chunk-tooltip') as HTMLElement | null;
+								if (!tip) return;
+								const rect = tip.getBoundingClientRect();
+								const vw = window.innerWidth;
+								const PAD = 8;
+								if (rect.left < PAD) {
+									const shift = PAD - rect.left;
+									tip.style.transform = `translateX(calc(-50% + ${shift}px))`;
+								} else if (rect.right > vw - PAD) {
+									const shift = rect.right - (vw - PAD);
+									tip.style.transform = `translateX(calc(-50% - ${shift}px))`;
+								}
+							});
+						}
 					}
 				}
 			});

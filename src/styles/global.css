@@ -39,6 +39,10 @@ body {
 	padding: 0;
 }
 
+html {
+	overflow-x: clip;
+}
+
 body {
 	min-height: 100vh;
 	font-family: 'Noto Serif SC', 'Source Han Serif SC', 'PingFang SC', 'Georgia', serif;
@@ -309,6 +313,10 @@ img {
 }
 
 /* Inline chunk highlighting */
+.article-body {
+	overflow-wrap: break-word;
+}
+
 .chunk-highlight {
 	background: #fde68a;
 	color: #1f2937;

@@ -24,3 +24,7 @@ pnpm-debug.log*
 .idea/
 tmp/
 __pycache__/
+
+# Playwright
+playwright-report/
+test-results/
