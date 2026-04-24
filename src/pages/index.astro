@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { readingStats } from '../lib/reading-stats';
 
 const posts = await getCollection('posts');
 const sortedPosts = posts.sort((a, b) => {
@@ -14,6 +15,10 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
 	month: 'long',
 	day: 'numeric',
 });
+
+const stats = new Map(
+	sortedPosts.map((p) => [p.id, readingStats(p.body ?? '')]),
+);
 ---
 
 <BaseLayout title="Reading Hub | 文章列表" description="个人阅读站：按时间倒序整理中英混合文章。">
@@ -26,26 +31,38 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
 
 		<ul class="posts-list">
 			{
-				sortedPosts.map((post) => (
-					<li class="post-card">
-						<h2 class="post-card-title">
-							<a href={`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}posts/${post.id}/`}>{post.data.title}</a>
-						</h2>
-						{post.data.date && (
+				sortedPosts.map((post) => {
+					const s = stats.get(post.id)!;
+					const chunkCount = post.data.chunks?.length ?? 0;
+					return (
+						<li class="post-card">
+							<h2 class="post-card-title">
+								<a href={`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}posts/${post.id}/`}>{post.data.title}</a>
+							</h2>
 							<div class="post-meta">
-								<time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+								{post.data.date && (
+									<time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+								)}
+								<span class="meta-dot" aria-hidden="true">·</span>
+								<span>{s.minutes} min read</span>
+								{chunkCount > 0 && (
+									<>
+										<span class="meta-dot" aria-hidden="true">·</span>
+										<span>📘 {chunkCount} 语块</span>
+									</>
+								)}
 							</div>
-						)}
-						{post.data.description && <p class="post-description">{post.data.description}</p>}
-						{post.data.tags.length > 0 && (
-							<div class="tags" aria-label="文章标签">
-								{post.data.tags.map((tag) => (
-									<span class="tag">#{tag}</span>
-								))}
-							</div>
-						)}
-					</li>
-				))
+							{post.data.description && <p class="post-description">{post.data.description}</p>}
+							{post.data.tags.length > 0 && (
+								<div class="tags" aria-label="文章标签">
+									{post.data.tags.map((tag) => (
+										<span class="tag">#{tag}</span>
+									))}
+								</div>
+							)}
+						</li>
+					);
+				})
 			}
 		</ul>
 	</section>

@@ -51,5 +51,24 @@ const baseUrl = import.meta.env.BASE_URL;
 				Quiet reading for mixed Chinese &amp; English notes.
 			</footer>
 		</div>
+		<button type="button" class="back-to-top" aria-label="回到顶部" hidden>
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+		</button>
+		<script is:inline>
+			(() => {
+				const btn = document.querySelector('.back-to-top');
+				if (!btn) return;
+				const onScroll = () => {
+					if (window.scrollY > window.innerHeight * 0.6) btn.hidden = false;
+					else btn.hidden = true;
+				};
+				window.addEventListener('scroll', onScroll, { passive: true });
+				btn.addEventListener('click', () => {
+					const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+					window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+				});
+				onScroll();
+			})();
+		</script>
 	</body>
 </html>

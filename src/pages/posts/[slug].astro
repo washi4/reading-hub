@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { readingStats } from '../../lib/reading-stats';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('posts');
@@ -32,19 +33,7 @@ const typeLabels: Record<string, string> = {
 	'sentence-frame': '句式框架',
 };
 
-// Reading stats: count English words + CJK characters separately, both contribute to reading time.
-const rawBody = post.body ?? '';
-const stripped = rawBody
-	.replace(/```[\s\S]*?```/g, ' ')
-	.replace(/`[^`]*`/g, ' ')
-	.replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
-	.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-	.replace(/[#>*_~\-]/g, ' ');
-const englishWords = (stripped.match(/[A-Za-z][A-Za-z'-]*/g) ?? []).length;
-const cjkChars = (stripped.match(/[\u4e00-\u9fff]/g) ?? []).length;
-// ~220 en wpm, ~400 cjk cpm (read-aloud pace is slower than silent reading)
-const minutes = Math.max(1, Math.round(englishWords / 220 + cjkChars / 400));
-const totalWords = englishWords + cjkChars;
+const { minutes, totalWords } = readingStats(post.body ?? '');
 
 // TOC: only h2 / h3, drop the article title if it's the first h1
 const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
@@ -121,6 +110,11 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 			<aside class="chunks-panel" aria-label="本文语块">
 				<h2>📘 本文语块 <span class="chunks-count">{chunks.length}</span></h2>
 				<p class="chunks-hint">正文里的黄色高亮就是下面这些表达，鼠标悬停或点击可看中文含义。</p>
+				<ul class="chunks-legend" aria-label="类型图例">
+					{Object.entries(typeLabels).map(([k, v]) => (
+						<li><span class={`chunks-type chunks-type-${k}`}>{v}</span></li>
+					))}
+				</ul>
 				<ul class="chunks-list">
 					{chunks.map((c) => (
 						<li>
