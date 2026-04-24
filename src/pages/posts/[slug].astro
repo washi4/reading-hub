@@ -48,9 +48,22 @@ const idx = sorted.findIndex((p) => p.id === post.id);
 const newer = idx > 0 ? sorted[idx - 1] : undefined;
 const older = idx >= 0 && idx < sorted.length - 1 ? sorted[idx + 1] : undefined;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+// Source card bits (favicon + host + optional date)
+let sourceHost: string | undefined;
+let sourceFavicon: string | undefined;
+if (source) {
+	try {
+		const u = new URL(source);
+		sourceHost = u.hostname.replace(/^www\./, '');
+		sourceFavicon = `https://www.google.com/s2/favicons?sz=64&domain=${u.hostname}`;
+	} catch {}
+}
+
+const ogImage = cover;
 ---
 
-<BaseLayout title={`${post.data.title} | Reading Hub`} description={post.data.description}>
+<BaseLayout title={`${post.data.title} | Reading Hub`} description={post.data.description} image={ogImage} type="article">
 	<article class={tocHeadings.length >= 3 ? 'has-toc' : undefined}>
 		<header class="article-header">
 			<h1>{post.data.title}</h1>
@@ -66,7 +79,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 			{post.data.tags.length > 0 && (
 				<div class="tags" aria-label="文章标签">
 					{post.data.tags.map((tag) => (
-						<span class="tag">#{tag}</span>
+						<a class="tag tag-link" href={`${baseUrl}tags/${encodeURIComponent(tag)}/`}>#{tag}</a>
 					))}
 				</div>
 			)}
@@ -76,8 +89,15 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 					{youtubeId && <span class="post-cover-badge">▶ 在 YouTube 观看原视频</span>}
 				</a>
 			)}
-			{source && !youtubeId && (
-				<p class="post-source"><a href={source} target="_blank" rel="noopener noreferrer">查看原文 →</a></p>
+			{source && !youtubeId && sourceHost && (
+				<a class="source-card" href={source} target="_blank" rel="noopener noreferrer">
+					{sourceFavicon && <img class="source-card-icon" src={sourceFavicon} alt="" width="32" height="32" loading="lazy" />}
+					<span class="source-card-body">
+						<span class="source-card-label">阅读原文</span>
+						<span class="source-card-host">{sourceHost}</span>
+					</span>
+					<span class="source-card-arrow" aria-hidden="true">→</span>
+				</a>
 			)}
 			{post.data.description && (
 				<aside class="tldr" aria-label="本文摘要">
