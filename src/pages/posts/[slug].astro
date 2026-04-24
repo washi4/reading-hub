@@ -6,12 +6,12 @@ export async function getStaticPaths() {
 	const posts = await getCollection('posts');
 	return posts.map((post) => ({
 		params: { slug: post.id },
-		props: { post },
+		props: { post, allPosts: posts },
 	}));
 }
 
-const { post } = Astro.props;
-const { Content } = await render(post);
+const { post, allPosts } = Astro.props;
+const { Content, headings } = await render(post);
 
 const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
 	year: 'numeric',
@@ -31,17 +31,49 @@ const typeLabels: Record<string, string> = {
 	formulaic: '惯用话语',
 	'sentence-frame': '句式框架',
 };
+
+// Reading stats: count English words + CJK characters separately, both contribute to reading time.
+const rawBody = post.body ?? '';
+const stripped = rawBody
+	.replace(/```[\s\S]*?```/g, ' ')
+	.replace(/`[^`]*`/g, ' ')
+	.replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+	.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+	.replace(/[#>*_~\-]/g, ' ');
+const englishWords = (stripped.match(/[A-Za-z][A-Za-z'-]*/g) ?? []).length;
+const cjkChars = (stripped.match(/[\u4e00-\u9fff]/g) ?? []).length;
+// ~220 en wpm, ~400 cjk cpm (read-aloud pace is slower than silent reading)
+const minutes = Math.max(1, Math.round(englishWords / 220 + cjkChars / 400));
+const totalWords = englishWords + cjkChars;
+
+// TOC: only h2 / h3, drop the article title if it's the first h1
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+// Prev / next by date descending (same ordering as index)
+const sorted = [...allPosts].sort((a, b) => {
+	const ad = a.data.date?.getTime() ?? 0;
+	const bd = b.data.date?.getTime() ?? 0;
+	return bd - ad;
+});
+const idx = sorted.findIndex((p) => p.id === post.id);
+const newer = idx > 0 ? sorted[idx - 1] : undefined;
+const older = idx >= 0 && idx < sorted.length - 1 ? sorted[idx + 1] : undefined;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <BaseLayout title={`${post.data.title} | Reading Hub`} description={post.data.description}>
-	<article>
+	<article class={tocHeadings.length >= 3 ? 'has-toc' : undefined}>
 		<header class="article-header">
 			<h1>{post.data.title}</h1>
-			{post.data.date && (
-				<div class="post-meta">
+			<div class="post-meta">
+				{post.data.date && (
 					<time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
-				</div>
-			)}
+				)}
+				<span class="meta-dot" aria-hidden="true">·</span>
+				<span class="reading-time">{minutes} min read</span>
+				<span class="meta-dot" aria-hidden="true">·</span>
+				<span class="word-count">{totalWords.toLocaleString()} words</span>
+			</div>
 			{post.data.tags.length > 0 && (
 				<div class="tags" aria-label="文章标签">
 					{post.data.tags.map((tag) => (
@@ -58,7 +90,27 @@ const typeLabels: Record<string, string> = {
 			{source && !youtubeId && (
 				<p class="post-source"><a href={source} target="_blank" rel="noopener noreferrer">查看原文 →</a></p>
 			)}
+			{post.data.description && (
+				<aside class="tldr" aria-label="本文摘要">
+					<span class="tldr-label">In Brief</span>
+					<p>{post.data.description}</p>
+				</aside>
+			)}
 		</header>
+
+		{tocHeadings.length >= 3 && (
+			<nav class="toc" aria-label="本文目录">
+				<div class="toc-label">On this page</div>
+				<ol>
+					{tocHeadings.map((h) => (
+						<li class={`toc-depth-${h.depth}`}>
+							<a href={`#${h.slug}`}>{h.text}</a>
+						</li>
+					))}
+				</ol>
+			</nav>
+		)}
+
 		<div class="article-body" data-chunks={chunks.length > 0 ? JSON.stringify(chunks) : undefined}>
 			<Content />
 		</div>
@@ -77,6 +129,23 @@ const typeLabels: Record<string, string> = {
 					))}
 				</ul>
 			</aside>
+		)}
+
+		{(newer || older) && (
+			<nav class="post-nav" aria-label="上一篇 / 下一篇">
+				{older ? (
+					<a class="post-nav-link post-nav-prev" href={`${baseUrl}posts/${older.id}/`}>
+						<span class="post-nav-dir">← 上一篇</span>
+						<span class="post-nav-title">{older.data.title}</span>
+					</a>
+				) : <span />}
+				{newer ? (
+					<a class="post-nav-link post-nav-next" href={`${baseUrl}posts/${newer.id}/`}>
+						<span class="post-nav-dir">下一篇 →</span>
+						<span class="post-nav-title">{newer.data.title}</span>
+					</a>
+				) : <span />}
+			</nav>
 		)}
 	</article>
 </BaseLayout>
@@ -203,6 +272,59 @@ const typeLabels: Record<string, string> = {
 					}
 				}
 			});
+		}
+	}
+</script>
+
+<script>
+	// TOC scroll-spy: highlight the link whose heading is closest to the top of the viewport.
+	const toc = document.querySelector<HTMLElement>('.toc');
+	if (toc) {
+		const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+		const entries = links
+			.map((a) => {
+				const id = decodeURIComponent(a.getAttribute('href')!.slice(1));
+				const el = document.getElementById(id);
+				return el ? { link: a, el } : null;
+			})
+			.filter((x): x is { link: HTMLAnchorElement; el: HTMLElement } => !!x);
+
+		const setActive = (link: HTMLAnchorElement | null) => {
+			for (const { link: a } of entries) a.classList.remove('toc-active');
+			link?.classList.add('toc-active');
+		};
+
+		// Activation line sits just below the sticky header. The topmost
+		// heading above that line wins. If none is above, fall back to the first.
+		const header = document.querySelector<HTMLElement>('.site-header');
+		const update = () => {
+			const headerH = header?.getBoundingClientRect().height ?? 0;
+			const line = headerH + 24;
+			let current: HTMLAnchorElement | null = entries[0]?.link ?? null;
+			for (const { link, el } of entries) {
+				const top = el.getBoundingClientRect().top;
+				if (top <= line) current = link;
+				else break;
+			}
+			setActive(current);
+		};
+
+		let ticking = false;
+		const onScroll = () => {
+			if (ticking) return;
+			ticking = true;
+			requestAnimationFrame(() => {
+				update();
+				ticking = false;
+			});
+		};
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll);
+		update();
+
+		// Click: set active immediately so it doesn't wait for scroll settle.
+		for (const { link } of entries) {
+			link.addEventListener('click', () => setActive(link));
 		}
 	}
 </script>
