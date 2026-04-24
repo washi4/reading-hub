@@ -63,6 +63,20 @@ body {
 	display: grid;
 	grid-template-rows: auto 1fr auto;
 	min-height: 100vh;
+	max-width: 100%;
+	min-width: 0;
+	overflow-x: clip;
+}
+
+.shell > * {
+	min-width: 0;
+}
+
+main {
+	padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem) 3.5rem;
+	min-width: 0;
+	max-width: 100%;
+	overflow-x: clip;
 }
 
 .site-header,
@@ -109,10 +123,6 @@ html {
 	text-transform: uppercase;
 	text-decoration: none;
 	color: var(--text);
-}
-
-main {
-	padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem) 3.5rem;
 }
 
 .content-wrap {
