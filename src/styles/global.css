@@ -122,6 +122,11 @@ main {
 	min-width: 0;
 }
 
+article {
+	max-width: 100%;
+	min-width: 0;
+}
+
 .site-footer {
 	border-top: 1px solid var(--border);
 	padding-block: 1.2rem;
@@ -272,6 +277,8 @@ img {
 	flex-wrap: wrap;
 	gap: 0.35rem;
 	margin-top: 0.75rem;
+	max-width: 100%;
+	min-width: 0;
 }
 
 .tag {
@@ -282,12 +289,15 @@ img {
 	background: var(--accent-soft);
 	color: var(--accent);
 	border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--border));
+	white-space: nowrap;
 }
 
 .article-header {
 	margin-bottom: 1.7rem;
 	padding-bottom: 1rem;
 	border-bottom: 1px solid var(--border);
+	min-width: 0;
+	max-width: 100%;
 }
 
 .article-header h1 {
