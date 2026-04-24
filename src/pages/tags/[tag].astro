@@ -35,7 +35,7 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
 <BaseLayout title={`#${tag} | Reading Hub`} description={`标有 #${tag} 的全部文章。`}>
 	<section>
-		<p class="breadcrumb"><a href={`${baseUrl}tags/`}>← 所有标签</a></p>
+		<p class="breadcrumb"><a href={baseUrl}>← Back to articles</a></p>
 		<h1>#{tag}</h1>
 		<p>共 {sortedPosts.length} 篇。</p>
 

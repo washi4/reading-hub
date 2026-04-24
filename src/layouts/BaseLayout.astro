@@ -70,8 +70,6 @@ const ogImage = image
 			<footer class="site-footer">
 				<span>Quiet reading for mixed Chinese &amp; English notes.</span>
 				<span class="site-footer-links">
-					<a href={`${baseUrl.replace(/\/?$/, '/')}tags/`}>标签</a>
-					<span aria-hidden="true">·</span>
 					<a href={`${baseUrl.replace(/\/?$/, '/')}rss.xml`}>RSS</a>
 				</span>
 			</footer>
@@ -84,7 +82,7 @@ const ogImage = image
 				const btn = document.querySelector('.back-to-top');
 				if (!btn) return;
 				const onScroll = () => {
-					if (window.scrollY > window.innerHeight * 0.6) btn.hidden = false;
+					if (window.scrollY > 400) btn.hidden = false;
 					else btn.hidden = true;
 				};
 				window.addEventListener('scroll', onScroll, { passive: true });
