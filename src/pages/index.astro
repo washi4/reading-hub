@@ -19,15 +19,43 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
 const stats = new Map(
 	sortedPosts.map((p) => [p.id, readingStats(p.body ?? '')]),
 );
+
+const tagCounts = new Map<string, number>();
+for (const p of sortedPosts) {
+	for (const t of p.data.tags ?? []) {
+		tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+	}
+}
+const tagList = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+const baseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <BaseLayout title="Reading Hub | 文章列表" description="个人阅读站：按时间倒序整理中英混合文章。">
 	<section>
-		<h1>Reading Hub</h1>
+		<div class="index-header">
+			<h1>Reading Hub</h1>
+			{tagList.length > 0 && (
+				<button type="button" class="tag-toggle" aria-expanded="false" aria-controls="index-tag-cloud" title="按标签筛选">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+					<span class="sr-only">按标签筛选</span>
+				</button>
+			)}
+		</div>
 		<p>
 			这里记录我想反复阅读的内容：文章、转录稿、实验笔记，以及中英混合的长文摘录。
 			页面保持简洁，适合安静地读完一篇。
 		</p>
+		{tagList.length > 0 && (
+			<ul id="index-tag-cloud" class="tag-cloud index-tag-cloud" hidden>
+				{tagList.map(([tag, count]) => (
+					<li>
+						<a class="tag tag-link" href={`${baseUrl}tags/${encodeURIComponent(tag)}/`}>
+							#{tag}<span class="tag-count">{count}</span>
+						</a>
+					</li>
+				))}
+			</ul>
+		)}
 
 		<ul class="posts-list">
 			{
@@ -67,3 +95,23 @@ const stats = new Map(
 		</ul>
 	</section>
 </BaseLayout>
+
+<script is:inline>
+	(() => {
+		const btn = document.querySelector('.tag-toggle');
+		const cloud = document.getElementById('index-tag-cloud');
+		if (!btn || !cloud) return;
+		btn.addEventListener('click', () => {
+			const open = cloud.hasAttribute('hidden') ? true : false;
+			if (open) {
+				cloud.removeAttribute('hidden');
+				btn.setAttribute('aria-expanded', 'true');
+				btn.classList.add('is-open');
+			} else {
+				cloud.setAttribute('hidden', '');
+				btn.setAttribute('aria-expanded', 'false');
+				btn.classList.remove('is-open');
+			}
+		});
+	})();
+</script>

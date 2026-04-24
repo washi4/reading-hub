@@ -110,7 +110,10 @@ const ogImage = cover;
 		{tocHeadings.length >= 3 && (
 			<details class="toc" open>
 				<summary>
-					<span class="toc-label">On this page</span>
+					<span class="toc-label">
+						<svg class="toc-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+						On this page
+					</span>
 					<span class="toc-chevron" aria-hidden="true">▾</span>
 				</summary>
 				<ol>
@@ -127,7 +130,7 @@ const ogImage = cover;
 			<Content />
 		</div>
 		{chunks.length > 0 && (
-			<aside class="chunks-panel" aria-label="本文语块">
+			<aside class="chunks-panel" id="chunks-panel" aria-label="本文语块">
 				<h2>📘 本文语块 <span class="chunks-count">{chunks.length}</span></h2>
 				<p class="chunks-hint">正文里的黄色高亮就是下面这些表达，鼠标悬停或点击可看中文含义。</p>
 				<ul class="chunks-legend" aria-label="类型图例">
@@ -166,6 +169,13 @@ const ogImage = cover;
 		)}
 	</article>
 </BaseLayout>
+
+{chunks.length > 0 && (
+	<a href="#chunks-panel" class="chunks-fab" aria-label={`跳到本文语块（${chunks.length} 个）`} title="跳到本文语块">
+		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+		<span class="chunks-fab-count">{chunks.length}</span>
+	</a>
+)}
 
 <script>
 	// Walk text nodes inside .article-body and wrap matches for each chunk.
