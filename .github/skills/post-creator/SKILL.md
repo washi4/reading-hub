@@ -116,13 +116,14 @@ Default working directory for downloads: `tmp/youtube-clips/<videoId>/` (create 
    - `source`: the canonical `https://www.youtube.com/watch?v=<videoId>` URL.
    - `cover`: `https://img.youtube.com/vi/<videoId>/maxresdefault.jpg` (the layout also auto-derives this from `source` if you omit it, but setting it explicitly keeps posts self-describing).
    - `speaker`: uploader / presenter name from the metadata fetch above.
-3. **Rewrite as an article, don't just paste the transcript.** This is the step that makes the result read-aloud friendly:
-   - Fix disfluencies: `I I I` → `I`, `no reason no reason` → `no reason — no reason`
-   - Merge fragments into complete sentences; add proper punctuation
-   - Break into logical paragraphs; add `##` section headings every 3–6 paragraphs
+3. **Treat the transcript as the source of truth.** For YouTube posts, keep the result as close to the subtitle transcript as possible:
+   - Do **not** summarize, compress, or substantially rewrite the speaker's words
+   - Fix obvious subtitle errors, duplicates, and broken punctuation only
+   - Break into readable paragraphs; add `##` section headings every 3–6 paragraphs
    - Preserve voice, idiomatic phrases, and memorable lines verbatim (e.g. `the mad lad figured it out on its own`)
    - Keep stage cues like `[applause]`, `[laughter]` — they help the reader pace themselves
    - For talks with Q&A, add a `---` then a `## Q&A` section formatted as `**Interviewer:** ...` / `**Speaker:** ...`
+   - If a passage is unclear or obviously wrong in the transcript, correct it minimally rather than paraphrasing it
 4. **Fill frontmatter** with `source: https://www.youtube.com/watch?v=<videoId>`, `speaker`, `format: TED-style talk + Q&A` (or similar), `language: English`, `purpose: Read-aloud article`.
 5. Reference: `src/content/posts/What's OpenClaw.md` is the canonical template for this flow.
 
@@ -220,3 +221,4 @@ Then wait — don't auto-commit or push unless asked.
 - Creating the file outside `src/content/posts/`. The Astro loader won't pick it up anywhere else.
 - Inventing Chinese translations when the source is English-only — unless the user explicitly asks for a bilingual version.
 - Auto-summarizing long articles. Reading-hub exists to host long-form; preserve it.
+- For YouTube posts, rewriting transcripts into summary prose instead of transcript-first cleanup.

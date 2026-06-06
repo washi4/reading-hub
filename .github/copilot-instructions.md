@@ -144,3 +144,20 @@ Do **not** auto-commit or push after writing a post. Tell the user the file path
 - `site: 'https://washi4.github.io'`, `base: '/reading-hub'` — all internal links must use `import.meta.env.BASE_URL` (already done in `BaseLayout.astro`)
 - Node ≥ 22.12.0 required
 - Content collection uses Astro 5+ `glob()` loader (not the legacy `type: 'content'` API)
+
+---
+
+## Cross-Session Memory (agentmemory)
+
+本项目配置了 agentmemory MCP。
+
+**召回**：在做架构决策、新功能设计、技术选型前，先 recall 用户的相关背景：
+- `memory_recall("user goals and preferences")`
+- `memory_recall("<与当前任务相关的主题>")`
+
+**存储**：发现以下信息时主动 `memory_save`：
+- 设计决策及理由（"选了 X 而非 Y，因为..."）
+- 用户偏好（"用户倾向于..."）
+- 经验教训（"这个方案失败了因为..."）
+
+不要存琐碎的实现细节，只存跨项目有价值的洞察。
