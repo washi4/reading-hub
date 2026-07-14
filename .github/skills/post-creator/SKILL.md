@@ -1,19 +1,12 @@
 ---
 name: post-creator
 description: >
-  Create a new reading post for the reading-hub Astro site from any source —
-  a YouTube video, a web article URL, a pasted text, or the user's own draft.
-  Non-markdown sources are converted to clean, read-aloud-friendly markdown
-  with proper frontmatter that satisfies the Astro content collection schema,
-  then written to `src/content/posts/<slug>.md`.
-  Make sure to use this skill whenever the user wants to add an article to
-  reading-hub, save a YouTube video as a reading-friendly article, archive a
-  web article, publish their own writing to the site, or asks to "turn this
-  into a post", even if they don't explicitly name the reading-hub project.
-  Trigger phrases include "加一篇文章", "创建一个 post", "把这个视频变成文章",
-  "发到 reading-hub", "转成朗读文章", "save this to reading-hub", "new post",
-  or whenever the user provides a YouTube URL / web URL / raw text and asks
-  to turn it into a reading post.
+  Create reading-hub posts from YouTube videos, web article URLs, pasted text,
+  existing markdown, or user drafts. Use when the user wants to add/archive/save
+  content as a reading-friendly article, says "turn this into a post", "发到
+  reading-hub", "转成朗读文章", "加一篇文章", or provides a source and asks for a
+  reading post. Writes `src/content/posts/<slug>.md` with Astro-valid
+  frontmatter and source-faithful body content.
 allowed-tools:
   - Read
   - Write
@@ -24,201 +17,151 @@ allowed-tools:
 
 # Reading Hub Post Creator
 
-This skill makes sure every post lands at `src/content/posts/<slug>.md` with the correct frontmatter, passes the content collection schema, and reads comfortably aloud.
+Create one Astro content post at `src/content/posts/<slug>.md`. The post must parse, preserve the source's substance, and keep the source's English voice. For YouTube, the cleaned subtitle transcript is the sole authority for the body.
 
-## What this skill does
+## Steps
 
-1. Identifies the source type: **YouTube video**, **web article URL**, **raw text / existing md**, or **user's own draft**.
-2. For non-markdown sources, converts the source into clean markdown prose (not subtitle fragments, not HTML soup).
-3. Writes a properly formatted post file to `src/content/posts/<slug>.md` with valid frontmatter that satisfies the schema in `src/content.config.ts`.
-4. Returns the file path so the user can preview it with `npm run dev`.
+1. **Classify source.** Identify exactly one branch: YouTube, web article URL, raw text/existing markdown, or user draft. Ask only for a missing title or source needed to proceed. Completion criterion: branch, title basis, and source URL/file/text are known.
+2. **Build clean body.** Convert source to markdown using the branch rules below. Completion criterion: body has no extraction artifacts and preserves the source's substantive content and voice.
+3. **Prepare frontmatter.** Use today's date from `date +%Y-%m-%d`, a valid slug, and only fields supported by `src/content.config.ts`. Completion criterion: frontmatter is YAML-safe, has `title`, and `tags` is a YAML list.
+4. **Write post.** Save only under `src/content/posts/<slug>.md`; if the file exists, ask before overwriting. Completion criterion: file exists at that path and no unrelated files were changed.
+5. **Run chunk mining.** For every English or bilingual post, run `english-chunks-miner` after the body is written and before validation. Chinese-only posts omit `chunks`. Completion criterion: English/bilingual frontmatter includes `chunks:` or the post is correctly marked Chinese-only.
+6. **Validate.** Run `npm run build` from the reading-hub repo root. If it fails because of this post, fix and rerun once. Completion criterion: build passes, or the remaining failure is unrelated and reported.
+7. **Finish.** Report the linked path and preview command: `cd reading-hub && npm run dev`. Do not commit or push unless asked.
 
-## Output location & filename rules
+## Frontmatter
 
-- Always write to `src/content/posts/<slug>.md` (relative to the reading-hub repo root).
-- `<slug>` must be: lowercase ASCII, words separated by `-`, no spaces, no punctuation except `-`. For Chinese-titled articles, use a pinyin or English slug derived from the topic, not the raw Chinese.
-- If a file with the same slug already exists, confirm with the user before overwriting. Do not silently clobber.
+Supported fields: `title`, `date`, `description`, `tags`, `source`, `cover`, `speaker`, `format`, `language`, `purpose`, `chunks`.
 
-## Required frontmatter
-
-The Astro content collection (`src/content.config.ts`) accepts:
-
-| Field | Required | Notes |
-|---|---|---|
-| `title` | yes | Human-readable title. For talks, can include a subtitle after `—`. |
-| `date` | recommended | **The date this post was generated, NOT the source publish date.** Use today (`date +%Y-%m-%d`). The index page sorts by this field, so using the video upload date would bury freshly-added older content at the bottom of the list. |
-| `description` | recommended | One-sentence summary. Chinese or English. Used on index page. |
-| `tags` | recommended | Array of lowercase slugs, e.g. `[youtube, opensource, career]`. |
-| `source` | for external sources | Original URL. Rendered as a link at the top of the article (and the "watch original" button for YouTube). |
-| `cover` | for YouTube / when available | Absolute image URL. For YouTube, use `https://img.youtube.com/vi/<videoId>/maxresdefault.jpg`. Rendered as a clickable hero image that opens the source. If omitted on a YouTube post, the layout auto-derives it from `source`. |
-| `speaker` | for talks/interviews | Name + role. |
-| `format` | optional | e.g. `TED-style talk + Q&A`, `blog post`, `podcast transcript`. |
-| `language` | optional | `English`, `Chinese`, or `Bilingual`. |
-| `purpose` | optional | e.g. `Read-aloud article`, `Study notes`. |
-| `chunks` | recommended for English/bilingual | Array of English expressions to highlight inline with Chinese meanings. See the dedicated section below. |
-
-Use this exact YAML block layout (tags as a list, not inline) — it matches the existing posts in the repo:
+Use this layout. Omit unknown fields; never invent speaker, source, or quotes.
 
 ```yaml
 ---
 title: "<title>"
-date: 2026-04-22   # today, from `date +%Y-%m-%d` — NOT the source publish date
+date: 2026-04-22
 description: "<one-sentence summary>"
 source: https://...
-cover: https://img.youtube.com/vi/<videoId>/maxresdefault.jpg   # YouTube only
+cover: https://img.youtube.com/vi/<videoId>/maxresdefault.jpg
 speaker: <name, role>
 format: <format>
-language: <language>
-purpose: <purpose>
+language: <English | Chinese | Bilingual>
+purpose: Read-aloud article
 tags:
   - tag-a
   - tag-b
 ---
 ```
 
-Strings with `:` or `—` should be quoted. Omit fields you don't have — don't invent speakers or sources.
+Rules:
+- `date` is the generation date, not source publish date. Backfilled old content should appear as newly added.
+- Quote strings containing `:` or `—`.
+- Slug is lowercase ASCII, hyphen-separated, no punctuation except `-`. For Chinese titles, use pinyin or an English topic slug.
+- For every English or bilingual post, run `english-chunks-miner` after the body is written and before validation. Chinese-only posts omit `chunks`.
 
-## Workflow by source type
+## Branch Rules
 
-### A. YouTube video
+### YouTube
 
-All required tools are bundled in this repo under `.github/skills/youtube-clipper/` — do not depend on any sibling workspace.
+Work from the reading-hub repo root. Store intermediates in `tmp/youtube-clips/<videoId>/`.
 
-Default working directory for downloads: `tmp/youtube-clips/<videoId>/` (create if missing, git-ignored). If the user already has a VTT file elsewhere, use theirs.
+1. Fetch subtitles and metadata with `yt-dlp`:
 
-1. **Download subtitles.** Prefer `yt-dlp` CLI directly — the bundled `download_video.py` has been known to fail silently on some videos. From the reading-hub repo root:
-   ```bash
-   mkdir -p tmp/youtube-clips/<videoId>
-   yt-dlp --skip-download --write-auto-subs --sub-lang en --sub-format vtt \
-     --cookies-from-browser chrome \
-     -o 'tmp/youtube-clips/%(id)s/%(id)s.%(ext)s' <url>
-   ```
-   Requires `yt-dlp` on PATH (`pip install yt-dlp`). Cookies bypass the 403 errors that hit anonymous requests. Also fetch metadata (title, uploader, upload date) to fill frontmatter:
-   ```bash
-   yt-dlp --skip-download --print "%(title)s|%(uploader)s|%(upload_date)s" \
-     --cookies-from-browser chrome <url>
-   ```
-   If you also need the video file, use `.github/skills/youtube-clipper/scripts/download_video.py <url> tmp/youtube-clips`.
-2. **Convert VTT to sentence-level SRT:**
-   ```bash
-   python3 .github/skills/youtube-clipper/scripts/vtt_to_shadow_srt.py \
-     tmp/youtube-clips/<videoId>/<videoId>.en.vtt /tmp/<videoId>.srt
-   ```
-   Then concatenate the subtitle lines (every 3rd block in each SRT entry) into continuous text and strip VTT artifacts (`<c>`, `&gt;`, position tags).
-3. **Remove rolling-caption repeats.** YouTube auto-captions often use a sliding window where each frame repeats part of the previous frame. After flattening, run the dedupe pass — it typically cuts word count by ~3× without losing content:
-   ```bash
-   python3 .github/skills/youtube-clipper/scripts/dedupe_rolling_captions.py \
-     /tmp/<videoId>.flat.txt /tmp/<videoId>.clean.txt
-   ```
-   If the flattened text still has phrases like `"moved to Hong Kong. This moved to Hong Kong. This moved to Hong Kong."`, this step is mandatory. If it's already clean, the script is a no-op.
-4. **Fill frontmatter.** Required YouTube-specific fields:
-   - `date`: **today's date** (`date +%Y-%m-%d`). Do NOT use the video upload date — the index sorts by this field and backfilled old videos should still rank by when you added them.
-   - `source`: the canonical `https://www.youtube.com/watch?v=<videoId>` URL.
-   - `cover`: `https://img.youtube.com/vi/<videoId>/maxresdefault.jpg` (the layout also auto-derives this from `source` if you omit it, but setting it explicitly keeps posts self-describing).
-   - `speaker`: uploader / presenter name from the metadata fetch above.
-3. **Treat the transcript as the source of truth.** For YouTube posts, keep the result as close to the subtitle transcript as possible:
-   - Do **not** summarize, compress, or substantially rewrite the speaker's words
-   - Fix obvious subtitle errors, duplicates, and broken punctuation only
-   - Break into readable paragraphs; add `##` section headings every 3–6 paragraphs
-   - Preserve voice, idiomatic phrases, and memorable lines verbatim (e.g. `the mad lad figured it out on its own`)
-   - Keep stage cues like `[applause]`, `[laughter]` — they help the reader pace themselves
-   - For talks with Q&A, add a `---` then a `## Q&A` section formatted as `**Interviewer:** ...` / `**Speaker:** ...`
-   - If a passage is unclear or obviously wrong in the transcript, correct it minimally rather than paraphrasing it
-4. **Fill frontmatter** with `source: https://www.youtube.com/watch?v=<videoId>`, `speaker`, `format: TED-style talk + Q&A` (or similar), `language: English`, `purpose: Read-aloud article`.
-5. Reference: `src/content/posts/What's OpenClaw.md` is the canonical template for this flow.
-
-### B. Web article URL
-
-1. Fetch and convert the URL to markdown using the bundled `baoyu-url-to-markdown` skill:
-   ```bash
-   npx -y bun .github/skills/baoyu-url-to-markdown/scripts/main.ts <url> -o tmp/<slug>.raw.md
-   # For login-required pages, add --wait
-   ```
-   Requires `bun` via `npx`. Fallback: any tool that produces clean markdown with the article body (no nav/ads).
-2. Strip site chrome: sidebars, "related posts", share buttons, cookie banners, footer links.
-3. Preserve the article's own headings (`##`, `###`), block quotes, and code blocks.
-4. **Preserve inline images.** If the source article has figures, diagrams, or screenshots, keep them in the post body as `![alt text](https://...)` at the same position they appear in the source. Use the original CDN URL — don't download, don't strip. Only skip purely decorative chrome (logos, share icons, "keep reading" cards). When in doubt, keep it: a figure diagram is part of the argument. Before saving, scan the raw source for `![` / `<img` / `<figure>` and verify every substantive one made it into the post.
-5. Add frontmatter with `source: <original URL>`. If the page has a byline, use `speaker: <author>` (or leave it off — don't invent).
-6. If the article is long (>2000 words), keep it whole — reading-hub is for long-form. Don't summarize unless the user asks.
-
-### C. Raw text or existing markdown
-
-1. If the user pastes text, ask them (briefly) for a title if one isn't obvious, then format:
-   - Add frontmatter
-   - Ensure the first heading is `# <title>` (optional; many posts skip it since the title comes from frontmatter — match the style of nearby posts)
-   - Clean up paragraph breaks and straighten quotes/dashes
-2. If they give you an existing `.md` file, read it, keep the body, and only add/fix frontmatter to match the schema.
-
-### D. User's own draft (Chinese / bilingual)
-
-See `src/content/posts/hello-world.md` and `sample-transcript.md` for the in-repo style: mixed Chinese/English paragraphs are welcome, use `**bold**` for key terms, `- ` for bullets, `>` for pulled quotes. Set `language: Bilingual` when both languages appear in substantial amounts.
-
-## English chunks (learn-while-reading)
-
-This site doubles as an English-study tool. For any **English or bilingual** post, include a `chunks` array in the frontmatter. The layout will:
-
-- Auto-highlight each chunk's **first occurrence** in the article body with a yellow underline.
-- Show the Chinese meaning (and any note) on hover or tap.
-- Render a `📘 本文语块` review list at the bottom of the article.
-
-### Frontmatter format
-
-```yaml
-chunks:
-  - text: "play it safe"            # the exact English phrase to match (case-insensitive)
-    type: chunk                     # chunk | collocation | formulaic | sentence-frame
-    meaning: "稳妥行事，不冒险"       # Chinese meaning, shown in tooltip + list
-    note: "自述性格常用"              # optional extra context / usage tip
-  - text: "once-in-a-lifetime opportunity"
-    type: collocation
-    meaning: "千载难逢的机会"
+```bash
+mkdir -p tmp/youtube-clips/<videoId>
+yt-dlp --skip-download --write-auto-subs --sub-lang en --sub-format vtt \
+  --cookies-from-browser chrome \
+  -o 'tmp/youtube-clips/%(id)s/%(id)s.%(ext)s' <url>
+yt-dlp --skip-download --print "%(title)s|%(uploader)s|%(upload_date)s" \
+  --cookies-from-browser chrome <url>
 ```
 
-### How to pick chunks
+2. Convert the VTT to a sentence-level SRT, flatten its text into `tmp/youtube-clips/<videoId>/<videoId>.flat.txt`, and run rolling-caption deduplication into `tmp/youtube-clips/<videoId>/<videoId>.clean.txt` whenever repeated display fragments remain:
 
-Mine them with the bundled **`english-chunks-miner`** skill at `.github/skills/english-chunks-miner/SKILL.md` — run it right after writing the post body and it will patch the `chunks:` block into the frontmatter for you. Include every expression that's genuinely worth teaching; the layout only highlights each phrase's **first** occurrence, so a long list stays readable. Prefer:
+```bash
+python3 .github/skills/youtube-clipper/scripts/vtt_to_shadow_srt.py \
+  tmp/youtube-clips/<videoId>/<videoId>.en.vtt \
+  tmp/youtube-clips/<videoId>/<videoId>.srt
+python3 - <<'PY'
+from pathlib import Path
 
-| Type | Good examples | Avoid |
-|---|---|---|
-| `chunk` | `start over`, `put on a brave face`, `bawling my eyes out` | single common words |
-| `collocation` | `drilled into me`, `itch to do something`, `make a decision` | obvious free combinations |
-| `formulaic` | `fast forward`, `long story short`, `to be fair` | |
-| `sentence-frame` | `The thing is …`, `What I mean is …` | |
+srt_path = Path("tmp/youtube-clips/<videoId>/<videoId>.srt")
+flat_path = Path("tmp/youtube-clips/<videoId>/<videoId>.flat.txt")
 
-### Rules
+lines = []
+for raw in srt_path.read_text(encoding="utf-8").splitlines():
+    line = raw.strip()
+    if line and not line.isdigit() and "-->" not in line:
+        lines.append(line)
 
-- `text` must appear **verbatim** somewhere in the article body (case-insensitive). If the post only has `"playing it safe"`, change `text` to `"playing it safe"` — the matcher doesn't stem.
-- The highlighter only marks the **first** occurrence to avoid visual noise; the review list still shows every entry.
-- Skip the field entirely for Chinese-only posts or when there's nothing worth teaching — an empty list is cleaner than junk.
-- For YouTube posts, pipe the deduped transcript through the `english-chunks-miner` skill, then translate / annotate the output into this YAML shape.
-
-## Quality bar before writing the file
-
-Check these before saving:
-
-- [ ] Frontmatter parses as YAML; `title` present; `tags` is a list; dates in `YYYY-MM-DD`.
-- [ ] Slug is ASCII, lowercase, hyphen-separated.
-- [ ] No VTT timestamps, no `<c>` tags, no `&gt;` or other HTML entities leaked into the body.
-- [ ] For web-article sources: every substantive figure/diagram/screenshot from the original is present in the post body as `![alt](url)`. Decorative chrome (site logos, share buttons, "keep reading" cards) is excluded.
-- [ ] Paragraphs have blank lines between them. Section headings use `##` (not `#`; that's reserved for the document title if used at all).
-- [ ] Long talks have Q&A split out after a `---` rule.
-- [ ] No hallucinated speaker names, quotes, or sources. If the transcript didn't name someone, call them `Interviewer` or by their role.
-
-## After writing
-
-Tell the user the final path (linked) and a one-line preview hint:
-
-```
-cd reading-hub && npm run dev
+flat_path.write_text(" ".join(lines) + "\n", encoding="utf-8")
+PY
+python3 .github/skills/youtube-clipper/scripts/dedupe_rolling_captions.py \
+  tmp/youtube-clips/<videoId>/<videoId>.flat.txt \
+  tmp/youtube-clips/<videoId>/<videoId>.clean.txt
 ```
 
-Then wait — don't auto-commit or push unless asked.
+If English captions are absent or unusable, stop and report the failure. The flattened subtitle text lives at `tmp/youtube-clips/<videoId>/<videoId>.flat.txt`; after dedupe, treat `tmp/youtube-clips/<videoId>/<videoId>.clean.txt` as the canonical cleaned transcript. Dedupe is mandatory whenever sliding-window repeats remain.
 
-## Anti-patterns
+3. Keep a cleaned, sentence-level transcript:
+- Preserve the speaker's wording, sequence, idioms, complete thoughts, `[applause]`, `[laughter]`, and Q&A turns.
+- Only remove display repeats and subtitle artifacts; correct obvious transcription errors; add punctuation, capitalization, and paragraphs.
+- Do not summarize, compress, paraphrase, add connective prose, or fill uncertain wording from context.
 
-- Pasting raw VTT subtitle blocks as the post body. The whole point of this site is that posts read aloud naturally.
-- Filling `speaker` or `source` with guesses. Leave the field out if you don't know.
-- Creating the file outside `src/content/posts/`. The Astro loader won't pick it up anywhere else.
-- Inventing Chinese translations when the source is English-only — unless the user explicitly asks for a bilingual version.
-- Auto-summarizing long articles. Reading-hub exists to host long-form; preserve it.
-- For YouTube posts, rewriting transcripts into summary prose instead of transcript-first cleanup.
+4. Frontmatter defaults: `source: https://www.youtube.com/watch?v=<videoId>`, `cover: https://img.youtube.com/vi/<videoId>/maxresdefault.jpg`, `speaker` from metadata, `format` matching the source, `language: English`, `purpose: Read-aloud article`, and a YAML `tags:` list that includes `youtube`.
+
+Reference template: `src/content/posts/openclaw-ted-talk.md`.
+
+### Web Article URL
+
+1. Convert with the bundled URL converter:
+
+```bash
+npx -y bun .github/skills/baoyu-url-to-markdown/scripts/main.ts <url> -o tmp/<slug>.raw.md
+# Add --wait for login-required pages.
+```
+
+Fallback to any method that yields clean article markdown.
+
+2. Preserve the article, not the website shell:
+- Remove nav, sidebars, share widgets, cookie banners, footer links, and related-post cards.
+- Preserve headings, block quotes, code blocks, and substantive figures.
+- Keep original CDN image URLs as `![alt](url)` in the same body position. Skip only decorative chrome images.
+- Long articles stay whole unless the user asks for a summary.
+
+3. Frontmatter defaults: `source: <url>`, `speaker` only if byline is present, `format: blog post` or more specific, `language` matching the article.
+
+### Raw Text Or Existing Markdown
+
+- Pasted text: infer title when obvious; otherwise ask briefly. Add frontmatter and clean paragraph breaks.
+- Existing markdown file: preserve body and fix only frontmatter needed for schema compliance.
+- Match nearby post style: most posts rely on frontmatter title and use `##` body headings, not `#`.
+
+### User Draft
+
+- Preserve the user's structure and voice.
+- Chinese/English mixed drafts are allowed; set `language: Bilingual` when both are substantial.
+- Use `**bold**`, lists, and block quotes when they clarify the draft; do not invent bilingual translation unless asked.
+
+## Quality Gate
+
+Before saving and before final response, check every relevant item:
+
+- Frontmatter parses; `title` exists; `tags` is a YAML list; date is `YYYY-MM-DD`.
+- Slug is valid and unique, or overwrite was confirmed.
+- Body has blank lines between paragraphs. For non-YouTube sources, keep or add `##` sections only when the source structure warrants them.
+- No VTT timestamps, cue numbers, `<c>` tags, position tags, `&gt;`, or HTML soup leaked into body.
+- Web articles keep every substantive figure/diagram/screenshot from source.
+- YouTube posts keep a cleaned, sentence-level transcript; no summarizing, compression, paraphrase, connective filler, or context-based gap filling.
+- Long talks with Q&A are split after `---`.
+- No hallucinated speaker names, quotes, sources, or translations.
+- Every English/bilingual post has `chunks:` added via `english-chunks-miner` before validation; Chinese-only posts omit `chunks`.
+
+## Anti-Patterns
+
+- Raw VTT blocks as article body.
+- Inline-array tags (`tags: [a, b]`).
+- Files outside `src/content/posts/`.
+- Source publish date in `date`.
+- Guessing metadata.
+- Stripping article diagrams or screenshots.
+- Auto-summarizing long-form content.

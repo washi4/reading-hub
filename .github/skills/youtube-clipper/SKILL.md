@@ -3,9 +3,9 @@ name: youtube-clipper
 description: >
   Minimal YouTube download + subtitle utilities used by the post-creator skill.
   Downloads videos and VTT subtitles via yt-dlp, and converts auto-generated
-  VTT captions into sentence-level SRT suitable for shadow reading or article
-  rewriting. Trigger when another skill needs to fetch a YouTube video or
-  flatten its captions into readable sentences.
+  VTT captions into sentence-level SRT suitable for shadow reading or
+  downstream transcript processing. Trigger when another skill needs to fetch a
+  YouTube video or flatten its captions into readable sentences.
 ---
 
 # YouTube Clipper (minimal)
@@ -13,6 +13,14 @@ description: >
 This is a trimmed-down version of the upstream
 [youtube-clipper skill](https://github.com/op7418/Youtube-clipper-skill),
 kept only for the scripts that the `post-creator` skill depends on.
+
+## Transcript Contract
+
+The output is source material for a native-English transcript, not a summary.
+Remove caption-format artifacts and progressive-display repeats only. Preserve
+wording and order; retain uncertain wording rather than guessing a correction.
+If English captions cannot be downloaded or converted, report the failure and
+do not substitute video metadata or generated prose.
 
 ## Requirements
 
@@ -39,14 +47,17 @@ directory — they use `pathlib` and resolve paths relative to their arguments.
 # Download video + subtitles
 python3 scripts/download_video.py <youtube_url> [output_dir]
 
-# Convert VTT captions to sentence-level SRT
+# Produce a sentence-level transcript source.
 python3 scripts/vtt_to_shadow_srt.py <input.vtt> <output.srt> \
   [--max-duration 8] [--min-duration 1.5]
 
-# Clean up rolling-caption repeats in flattened plain text
+# Remove rolling display repetition from flattened transcript text.
 python3 scripts/dedupe_rolling_captions.py <input.txt> <output.txt>
 # Or use with stdin: cat transcript.txt | python3 scripts/dedupe_rolling_captions.py -
 ```
+
+A repeated rolling-caption sequence such as `we can we can build` must become
+`we can build`; a non-repeated spoken phrase must remain unchanged.
 
 ### Known caveats
 
@@ -59,5 +70,7 @@ python3 scripts/dedupe_rolling_captions.py <input.txt> <output.txt>
 ## Scope
 
 This skill intentionally does **not** include: video clipping, subtitle burning,
-translation, or bilingual subtitle generation. If those are needed later, pull
-the relevant scripts back in from the upstream project.
+post creation, translation, summary generation, or bilingual subtitle
+generation. It only covers caption acquisition and faithful subtitle
+normalization. If those are needed later, pull the relevant scripts back in
+from the upstream project.
